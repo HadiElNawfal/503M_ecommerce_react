@@ -3,6 +3,10 @@ from flask_sqlalchemy import SQLAlchemy
 from db_config import DB_CONFIG
 
 app = Flask(__name__)
+
+# @ Hadi and Sergio, replate the DB_CONFIG in this format:
+# DB_CONFIG = 'mysql://root:PASSWORD@localhost:3306/DATABASE_NAME'
+
 app.config['SQLALCHEMY_DATABASE_URI'] = DB_CONFIG
 db = SQLAlchemy(app)
 
