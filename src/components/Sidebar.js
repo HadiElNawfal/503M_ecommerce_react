@@ -9,6 +9,7 @@ const Sidebar = ({ onSelect }) => {
     { text: "Dashboard", icon: <DashboardIcon />, key: "dashboard" },
     { text: "Inventory", icon: <InventoryIcon />, key: "inventory" },
     { text: "Orders", icon: <InventoryIcon />, key: "orders" },
+    { text: "Returns", icon: <InventoryIcon />, key: "returns" },
     { text: "Products", icon: <InventoryIcon />, key: "products" },
     { text: "Customers", icon: <PeopleIcon />, key: "customers" }
   ];

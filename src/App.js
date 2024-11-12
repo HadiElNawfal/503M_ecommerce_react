@@ -4,6 +4,7 @@ import axios from 'axios';
 import AdminDashboard from './admin/pages/AdminDashboard';
 import Inventory from './admin/pages/Inventory';
 import Orders from './admin/pages/Orders';
+import Returns from './admin/pages/Returns';
 import Products from './admin/pages/Products';
 import LoginForm from './admin/pages/LoginForm';
 
@@ -40,6 +41,7 @@ function App() {
           <Route path="admin" element={<AdminDashboard />}>
             <Route path="inventory" element={<Inventory />} />
             <Route path="orders" element={<Orders />} />
+            <Route path="orders" element={<Returns />} />
             <Route path="products" element={<Products />} />
           </Route>
         )}
