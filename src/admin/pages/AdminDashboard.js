@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Typography } from '@mui/material';
+import { Button, Box, Typography } from '@mui/material';
 import Sidebar from '../../components/Sidebar';
 import DashboardOverview from '../../components/DashboardOverview';
 import BarChart from '../../components/BarChart'; // Import BarChart component
@@ -7,10 +7,22 @@ import Inventory from './Inventory'; // Import your Inventory component
 import Orders from './Orders';
 import Returns from './Returns';
 import Products from './Products';
-import axios from 'axios';
+import axios from '../../axiosConfig'
 import config from '../../config'
 
 const AdminDashboard = () => {
+ const handleLogout = async () => {
+  console.log('Logout initiated'); // Debug log
+  try {
+    const response = await axios.post('/api/logout');
+    console.log('Logout response:', response); // Debug log
+    
+    // Clear React state through App component
+    window.location.replace('/login'); // Force navigation
+  } catch (error) {
+    console.error('Logout error details:', error.response || error); // Detailed error log
+  }
+};
   const { server } = config;
   const [selectedPage, setSelectedPage] = useState("dashboard");
   const [dashboardData, setDashboardData] = useState({
@@ -54,6 +66,14 @@ const AdminDashboard = () => {
       default:
         return (
           <div>
+            <Button 
+              variant="contained" 
+              color="secondary" 
+              onClick={handleLogout}
+              sx={{ mb: 2 }} // margin bottom
+            >
+              Logout
+            </Button>
             <DashboardOverview />
             <Box sx={{ marginTop: 3 }}>
               <BarChart

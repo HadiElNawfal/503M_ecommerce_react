@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import axios from '../../axiosConfig';
 import './LoginForm.css'; // Import the CSS for styling
 
 const LoginForm = ({ onLoginSuccess }) => {
@@ -8,22 +9,12 @@ const LoginForm = ({ onLoginSuccess }) => {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-
-    // Simulate API login call
-    const response = await fetch('http://localhost:4000/api/login', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ username, password }),
-    });
-
-    const data = await response.json();
-
-    if (data.success) {
-      onLoginSuccess(data);
-    } else {
-      setError(data.message || 'Invalid credentials');
+    try {
+      await axios.post('/api/login', { username, password });
+      onLoginSuccess();
+    } catch (error) {
+      console.error('Login failed', error);
+      setError('Invalid credentials');
     }
   };
 
