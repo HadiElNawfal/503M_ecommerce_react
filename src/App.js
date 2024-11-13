@@ -1,4 +1,3 @@
-// App.js
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import axios from './axiosConfig';
@@ -9,11 +8,19 @@ import Orders from './admin/pages/Orders';
 import Returns from './admin/pages/Returns';
 import Products from './admin/pages/Products';
 
-// App.js
+const ForceRefreshRedirect = ({ to }) => {
+  useEffect(() => {
+    window.location.href = to;
+  }, [to]);
+  return <div>Redirecting...</div>;
+};
+
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [userRoles, setUserRoles] = useState([]);
   const [adminUrl, setAdminUrl] = useState('');
   const [isLoading, setIsLoading] = useState(true);
+  const [redirecting, setRedirecting] = useState(false); // Flag to prevent multiple redirects
 
   const handleLoginSuccess = async () => {
     setIsAuthenticated(true);
@@ -25,43 +32,43 @@ function App() {
     }
   };
 
-  // Single useEffect for initial setup
   useEffect(() => {
-    let mounted = true;
-
     const init = async () => {
       try {
-        // Get CSRF token once
         await axios.get('/api/get-csrf-token');
-        
-        // Check authentication
-        try {
-          const response = await axios.get('/api/check-auth');
-          if (mounted && response.status === 200) {
-            setIsAuthenticated(true);
+
+        const response = await axios.get('/api/check-auth');
+        if (response.status === 200 && response.data.authenticated) {
+          setIsAuthenticated(true);
+          setUserRoles(response.data.roles);
+
+          if (response.data.roles.includes('Admin')) {
             const adminResponse = await axios.get('/api/get-admin-url');
-            if (mounted) {
-              setAdminUrl(adminResponse.data.admin_url);
+            setAdminUrl(adminResponse.data.admin_url);
+          } else {
+            // User is authenticated but not an Admin
+            if (!redirecting) {
+              setRedirecting(true); // Prevent further redirects
+              await axios.post('/api/logout');
+              setIsAuthenticated(false);
+              setUserRoles([]);
+              setAdminUrl('');
+              // Optional: You can display a message here using state
             }
           }
-        } catch (error) {
-          // Authentication failed - do nothing, will redirect to login
-          console.log('Not authenticated');
+        } else {
+          setIsAuthenticated(false);
         }
       } catch (error) {
-        console.error('Initialization error:', error);
+        console.error('Authentication check failed', error);
+        setIsAuthenticated(false);
       } finally {
-        if (mounted) {
-          setIsLoading(false);
-        }
+        setIsLoading(false);
       }
     };
 
     init();
-    return () => {
-      mounted = false;
-    };
-  }, []); // Empty dependency array - only run once on mount
+  }, [redirecting]);
 
   if (isLoading) {
     return <div>Loading...</div>;
@@ -70,17 +77,17 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route 
-          path="/login" 
+        <Route
+          path="/login"
           element={
             !isAuthenticated ? (
               <LoginForm onLoginSuccess={handleLoginSuccess} />
             ) : (
-              <Navigate to={adminUrl} replace />
+              <ForceRefreshRedirect to={adminUrl} />
             )
-          } 
+          }
         />
-        {isAuthenticated && adminUrl && (
+        {isAuthenticated && userRoles.includes('Admin') && adminUrl && (
           <Route path={`${adminUrl}/*`} element={<AdminDashboard />}>
             <Route path="inventory" element={<Inventory />} />
             <Route path="orders" element={<Orders />} />
@@ -88,11 +95,15 @@ function App() {
             <Route path="products" element={<Products />} />
           </Route>
         )}
-        <Route 
-          path="*" 
+        <Route
+          path="*"
           element={
-            <Navigate to={isAuthenticated ? `${adminUrl}` : '/login'} replace />
-          } 
+            isAuthenticated && userRoles.includes('Admin') ? (
+              <Navigate to={adminUrl} replace />
+            ) : (
+              <Navigate to="/login" replace />
+            )
+          }
         />
       </Routes>
     </Router>

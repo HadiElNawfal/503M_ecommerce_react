@@ -26,6 +26,9 @@ instance.interceptors.response.use(
     const currentPath = window.location.pathname;
     if (error.response && error.response.status === 401 && currentPath !== '/login') {
       window.location.href = '/login';
+    } else if (error.response && error.response.status === 403) {
+      // Redirect to Not Authorized page
+      window.location.href = '/not-authorized';
     }
     return Promise.reject(error);
   }
