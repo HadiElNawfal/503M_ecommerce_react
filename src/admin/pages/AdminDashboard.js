@@ -99,9 +99,6 @@ const AdminDashboard = () => {
       
       {/* Main content area */}
       <Box sx={{ flexGrow: 1, p: 3, display: 'flex', flexDirection: 'column' }}>
-        <Typography variant="h3" gutterBottom>
-          Admin Dashboard
-        </Typography>
         {renderContent()}
       </Box>
     </Box>

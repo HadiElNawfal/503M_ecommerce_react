@@ -17,10 +17,9 @@ const Products = () => {
   const [isPricingOpen, setIsPricingOpen] = useState(false);
   const [csvFile, setCsvFile] = useState(null);
 
-  // Fetch products from the server
   const fetchData = useCallback(async () => {
     try {
-      const response = await fetch(`${server}/api/products`);
+      const response = await fetch(`${server}/api/view_products`);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -32,15 +31,11 @@ const Products = () => {
   }, [server]);
 
   useEffect(() => {
-    // Initial fetch and interval setup
     fetchData();
     const intervalId = setInterval(fetchData, 10000);
-  
-    // Cleanup interval on unmount
     return () => clearInterval(intervalId);
   }, [fetchData]);
 
-  // Modal control functions
   const openAddModal = () => setIsAddOpen(true);
   const closeAddModal = () => setIsAddOpen(false);
 
@@ -62,7 +57,6 @@ const Products = () => {
   };
   const closePricingModal = () => setIsPricingOpen(false);
 
-  // Bulk Upload Handling
   const handleCsvUpload = (event) => {
     setCsvFile(event.target.files[0]);
   };
@@ -73,24 +67,21 @@ const Products = () => {
       return;
     }
 
-    // Parse the CSV file using PapaParse
     Papa.parse(csvFile, {
       header: true,
       skipEmptyLines: true,
       complete: async (result) => {
-        const productsData = result.data; // Array of products
-
+        const productsData = result.data;
         try {
           const response = await fetch(`${server}/api/bulk-add-products`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ products: productsData })
           });
-
           if (response.ok) {
-            fetchData(); // Refresh the product list
+            fetchData();
             console.log('Bulk upload successful');
-            setCsvFile(null); // Clear the file input
+            setCsvFile(null);
           } else {
             console.error('Bulk upload failed');
           }
@@ -105,11 +96,10 @@ const Products = () => {
   };
 
   return (
-    <Box sx={{ padding: '20px', marginLeft: '250px' }}> {/* Fixed position for consistent alignment */}
-    <Typography variant="h4" gutterBottom>Product Management</Typography>
-    <Button variant="contained" onClick={openAddModal} sx={{ mb: 3 }}>Add Product</Button>
+    <Box sx={{ padding: '20px', marginLeft: '250px' }}>
+      <Typography variant="h4" gutterBottom>Product Management</Typography>
+      <Button variant="contained" onClick={openAddModal} sx={{ mb: 3 }}>Add Product</Button>
 
-      {/* Bulk Upload Section */}
       <Box sx={{ mb: 3 }}>
         <Typography variant="h6" gutterBottom>Bulk Upload Products</Typography>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
@@ -122,7 +112,6 @@ const Products = () => {
         </Box>
       </Box>
 
-      {/* Product Table */}
       <TableContainer component={Paper}>
         <Table>
           <TableHead>
@@ -132,17 +121,31 @@ const Products = () => {
               <TableCell>Description</TableCell>
               <TableCell>Price</TableCell>
               <TableCell>Discount (%)</TableCell>
+              <TableCell>Image</TableCell>
+              <TableCell>Listed</TableCell>
+              <TableCell>Category ID</TableCell>
+              <TableCell>Subcategory ID</TableCell>
               <TableCell>Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {products.map((product) => (
-              <TableRow key={product.product_id}>
-                <TableCell>{product.product_id}</TableCell>
-                <TableCell>{product.product_name}</TableCell>
-                <TableCell>{product.description}</TableCell>
-                <TableCell>${product.price}</TableCell>
-                <TableCell>{product.discount || 0}%</TableCell>
+              <TableRow key={product.Product_ID}>
+                <TableCell>{product.Product_ID}</TableCell>
+                <TableCell>{product.Name}</TableCell>
+                <TableCell>{product.Description}</TableCell>
+                <TableCell>${product.Price.toFixed(2)}</TableCell>
+                <TableCell>{product.Discount_Percentage || 0}%</TableCell>
+                <TableCell>
+                  {product.ImageURL ? (
+                    <img src={product.ImageURL} alt={product.Name} width="50" height="50" />
+                  ) : (
+                    'No Image'
+                  )}
+                </TableCell>
+                <TableCell>{product.Listed ? 'Yes' : 'No'}</TableCell>
+                <TableCell>{product.Category_ID || 'N/A'}</TableCell>
+                <TableCell>{product.SubCategory_ID || 'N/A'}</TableCell>
                 <TableCell>
                   <Button onClick={() => openUpdateModal(product)} variant="outlined" sx={{ mr: 1 }}>Edit</Button>
                   <Button onClick={() => openRemoveModal(product)} variant="outlined" color="error">Remove</Button>
@@ -154,28 +157,24 @@ const Products = () => {
         </Table>
       </TableContainer>
 
-      {/* Add Product Modal */}
       <Modal open={isAddOpen} onClose={closeAddModal}>
         <Box sx={{ maxWidth: 500, mx: 'auto', p: 4, bgcolor: 'background.paper', mt: 8 }}>
           <AddProduct onClose={closeAddModal} onAdd={fetchData} />
         </Box>
       </Modal>
 
-      {/* Update Product Modal */}
       <Modal open={isUpdateOpen} onClose={closeUpdateModal}>
         <Box sx={{ maxWidth: 500, mx: 'auto', p: 4, bgcolor: 'background.paper', mt: 8 }}>
           <UpdateProduct product={selectedProduct} onClose={closeUpdateModal} onUpdate={fetchData} />
         </Box>
       </Modal>
 
-      {/* Remove Product Modal */}
       <Modal open={isRemoveOpen} onClose={closeRemoveModal}>
         <Box sx={{ maxWidth: 500, mx: 'auto', p: 4, bgcolor: 'background.paper', mt: 8 }}>
           <RemoveProduct product={selectedProduct} onClose={closeRemoveModal} onRemove={fetchData} />
         </Box>
       </Modal>
 
-      {/* Manage Pricing Modal */}
       <Modal open={isPricingOpen} onClose={closePricingModal}>
         <Box sx={{ maxWidth: 500, mx: 'auto', p: 4, bgcolor: 'background.paper', mt: 8 }}>
           <ManagePricing product={selectedProduct} onClose={closePricingModal} onUpdate={fetchData} />
