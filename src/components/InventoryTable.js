@@ -4,14 +4,14 @@ import { Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, 
 
 const InventoryTable = ({ data }) => {
   return (
-    <Box sx={{ mt: 2, maxWidth: '700px' }}> {/* Adjusted max-width for balance */}
+    <Box sx={{ mt: 2, maxWidth: '1000px' }}> {/* Adjusted max-width for balance */}
       <TableContainer component={Paper} sx={{ borderRadius: 2, boxShadow: 3 }}>
         <Table>
           <TableHead>
-            <TableRow sx={{ backgroundColor: '#4A90E2' }}>
-              <TableCell sx={{ color: '#FFF', fontWeight: 'bold' }}>Product Name</TableCell>
-              <TableCell sx={{ color: '#FFF', fontWeight: 'bold' }}>Stock Level</TableCell>
-              <TableCell sx={{ color: '#FFF', fontWeight: 'bold' }}>Warehouse Location</TableCell>
+            <TableRow sx={{ backgroundColor: '#FFFFF' }}>
+              <TableCell sx={{ color: '#000', fontWeight: 'bold' }}>Product Name</TableCell>
+              <TableCell sx={{ color: '#000', fontWeight: 'bold' }}>Stock Level</TableCell>
+              <TableCell sx={{ color: '#000', fontWeight: 'bold' }}>Warehouse Location</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>

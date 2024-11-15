@@ -46,10 +46,8 @@ const Inventory = () => {
   }, [server]);
 
   return (
-    <Box sx={{ p: 3 }}>
-      <Typography variant="h4" gutterBottom>
-        Inventory Management
-      </Typography>
+    <Box sx={{ padding: '20px', marginRight: '450px', marginTop: '50px'}}> {/* Fixed position for consistent alignment */}
+    <Typography variant="h4" gutterBottom>Inventory Management</Typography>
 
       {/* Low Stock Alert */}
       <LowStockAlert lowStockProducts={lowStockProducts} />

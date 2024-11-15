@@ -4,10 +4,8 @@ import { Box, Typography, Table, TableBody, TableCell, TableContainer, TableHead
 
 const ManageReturns = ({ returns, onStatusChange }) => {
   return (
-    <Box>
-      <Typography variant="h5" fontWeight="bold" gutterBottom>
-        Manage Returned Orders
-      </Typography>
+    <Box sx={{ padding: '20px', marginLeft: '250px' }}> {/* Fixed position for consistent alignment */}
+    <Typography variant="h4" gutterBottom>Returns Management</Typography>
       <TableContainer component={Paper}>
         <Table>
           <TableHead>
