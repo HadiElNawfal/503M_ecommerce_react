@@ -7,18 +7,25 @@ const instance = axios.create({
   withCredentials: true
 });
 
+function getCsrfTokenFromCookie() {
+  const value = `${document.cookie}`;
+  const parts = value.split('; csrf_token=');
+  if (parts.length === 2) return parts.pop().split(';').shift();
+  return '';
+}
+
 // Request interceptor
 instance.interceptors.request.use(
   (config) => {
-    const csrfToken = getCookie('csrf_token');
+    const csrfToken = getCsrfTokenFromCookie();
     if (csrfToken) {
       config.headers['X-CSRFToken'] = csrfToken;
+      console.log(`[DEBUG] CSRF Token set in headers: ${csrfToken}`);
     }
     return config;
   },
   (error) => Promise.reject(error)
 );
-
 // Response interceptor
 instance.interceptors.response.use(
   (response) => response,

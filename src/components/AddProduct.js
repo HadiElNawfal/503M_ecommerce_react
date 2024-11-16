@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Box, TextField, Button, Typography, Checkbox, FormControlLabel } from '@mui/material';
 import config from '../config';
+import axios from '../axiosConfig';
 
 const AddProduct = ({ onClose, onAdd }) => {
   const { server } = config;
@@ -39,21 +40,14 @@ const AddProduct = ({ onClose, onAdd }) => {
     };
 
     try {
-      const response = await fetch(`${server}/api/add_product`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(newProduct),
-      });
+      // Axios interceptor will automatically include the CSRF token
+      const response = await axios.post('/api/add_product', newProduct);
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        setError(errorData.error || 'Failed to add product');
-      } else {
-        const result = await response.json();
-        onAdd(); // Trigger parent component to refresh the list
+      if (response.status === 201) {
+        onAdd(response.data.product); // Ensure your backend returns the added product
         onClose(); // Close the modal
+      } else {
+        setError(response.data.error || 'Failed to add product');
       }
     } catch (err) {
       console.error('Error:', err);

@@ -24,18 +24,26 @@ function App() {
 
   const handleLoginSuccess = async () => {
     setIsAuthenticated(true);
-    try {
-      const response = await axios.get('/api/get-admin-url');
-      setAdminUrl(response.data.admin_url);
-    } catch (error) {
-      console.error('Failed to fetch admin URL', error);
-    }
   };
+
+  useEffect(() => {
+    const fetchCsrfToken = async () => {
+      try {
+        const response = await axios.get('/api/get-csrf-token');
+      } catch (error) {
+        console.error('Failed to fetch CSRF token:', error);
+      }
+    };
+
+    if (isAuthenticated) {
+      fetchCsrfToken();
+    }
+  }, [isAuthenticated]);
+
 
   useEffect(() => {
     const init = async () => {
       try {
-        await axios.get('/api/get-csrf-token');
 
         const response = await axios.get('/api/check-auth');
         if (response.status === 200 && response.data.authenticated) {
