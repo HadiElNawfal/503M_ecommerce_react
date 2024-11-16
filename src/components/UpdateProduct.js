@@ -6,6 +6,7 @@ const UpdateProduct = ({ product, onClose, onUpdate }) => {
   const { server } = config;
 
   // State for each field with initial values from the product
+  const [errorMessage, setErrorMessage] = useState(''); // State to store error messages
   const [productName, setProductName] = useState(product.Name);
   const [description, setDescription] = useState(product.Description);
   const [price, setPrice] = useState(product.Price);
@@ -17,6 +18,16 @@ const UpdateProduct = ({ product, onClose, onUpdate }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Validate the inputs
+    if (price < 0) {
+      setErrorMessage('Price cannot be negative.');
+      return;
+    }
+    if (discountPercentage < 0 || discountPercentage > 100) {
+      setErrorMessage('Discount Percentage must be between 0 and 100.');
+      return;
+    }
 
     // Prepare the data object with only the updated fields
     const updatedFields = {};
@@ -30,23 +41,42 @@ const UpdateProduct = ({ product, onClose, onUpdate }) => {
     if (subCategoryId !== product.SubCategory_ID) updatedFields.SubCategory_ID = parseInt(subCategoryId);
 
     try {
-      await fetch(`${server}/api/update_product/${product.Product_ID}`, {
+      const response = await fetch(`${server}/api/update_product/${product.Product_ID}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(updatedFields)
+        body: JSON.stringify(updatedFields),
       });
-      onUpdate(); // Refresh the product list in the parent component
-      onClose();  // Close the modal
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.log(errorData);
+        setErrorMessage(errorData.error || 'An error occurred while updating the product.');
+      } else {
+        onUpdate(); // Refresh the product list in the parent component
+        onClose();  // Close the modal
+      }
     } catch (error) {
       console.error('Error updating product:', error);
+      setErrorMessage('Failed to update product. Please try again.');
     }
   };
 
   return (
-    <Box sx={{ p: 3 }}>
+    <Box
+      sx={{
+        p: 3,
+        maxHeight: '80vh', // Limits modal height to 80% of the viewport height
+        overflowY: 'auto', // Enables vertical scrolling if content exceeds the modal height
+      }}
+    >
       <Typography variant="h6" gutterBottom>
         Update Product
       </Typography>
+      {errorMessage && (
+        <Typography color="error" sx={{ mb: 2 }}>
+          {errorMessage}
+        </Typography>
+      )}
       {product.ImageURL && (
         <img
           src={product.ImageURL}
@@ -68,6 +98,8 @@ const UpdateProduct = ({ product, onClose, onUpdate }) => {
           onChange={(e) => setDescription(e.target.value)}
           fullWidth
           margin="normal"
+          multiline
+          rows={3}
         />
         <TextField
           label="Price"

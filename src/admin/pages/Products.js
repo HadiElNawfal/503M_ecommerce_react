@@ -3,7 +3,7 @@ import { Box, Typography, Button, Modal, Table, TableBody, TableCell, TableConta
 import AddProduct from '../../components/AddProduct';
 import UpdateProduct from '../../components/UpdateProduct';
 import RemoveProduct from '../../components/RemoveProduct';
-import ManagePricing from '../../components/ManagePricing';
+
 import config from '../../config';
 import Papa from 'papaparse';
 
@@ -149,7 +149,6 @@ const Products = () => {
                 <TableCell>
                   <Button onClick={() => openUpdateModal(product)} variant="outlined" sx={{ mr: 1 }}>Edit</Button>
                   <Button onClick={() => openRemoveModal(product)} variant="outlined" color="error">Remove</Button>
-                  <Button onClick={() => openPricingModal(product)} variant="outlined" color="primary">Manage Pricing</Button>
                 </TableCell>
               </TableRow>
             ))}
@@ -172,12 +171,6 @@ const Products = () => {
       <Modal open={isRemoveOpen} onClose={closeRemoveModal}>
         <Box sx={{ maxWidth: 500, mx: 'auto', p: 4, bgcolor: 'background.paper', mt: 8 }}>
           <RemoveProduct product={selectedProduct} onClose={closeRemoveModal} onRemove={fetchData} />
-        </Box>
-      </Modal>
-
-      <Modal open={isPricingOpen} onClose={closePricingModal}>
-        <Box sx={{ maxWidth: 500, mx: 'auto', p: 4, bgcolor: 'background.paper', mt: 8 }}>
-          <ManagePricing product={selectedProduct} onClose={closePricingModal} onUpdate={fetchData} />
         </Box>
       </Modal>
     </Box>
