@@ -16,7 +16,7 @@ import {
   Select,
   MenuItem,
 } from '@mui/material';
-import axios from 'axios';
+import axios from '../../axiosConfig';
 import config from '../../config';
 
 const Returns = () => {
