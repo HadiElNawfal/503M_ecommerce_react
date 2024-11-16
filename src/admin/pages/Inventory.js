@@ -3,7 +3,7 @@ import { Box, Button, Typography } from '@mui/material';
 import InventoryTable from '../../components/InventoryTable';
 import InventoryReports from '../../components/InventoryReports';
 import LowStockAlert from '../../components/LowStockAlert';
-import config from '../../config'
+import config from '../../config';
 import axios from '../../axiosConfig';
 
 const Inventory = () => {
@@ -24,15 +24,23 @@ const Inventory = () => {
       console.error('Logout error:', error); // Detailed error log
     }
   };
+
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get(`/api/inventory`);
+        const response = await axios.get(`/api/view_inventory`);
         const data = response.data;
-        setInventoryData(data);
-        const lowStock = data.filter(item => item.stock_level < 10);
-        setLowStockProducts(lowStock);
-    
+        console.log(data);
+
+        // Validate that data.Inventory is an array
+        if (Array.isArray(data.Inventory)) {
+          setInventoryData(data.Inventory);
+          const lowStock = data.Inventory.filter(item => item.stock_level < 10);
+          setLowStockProducts(lowStock);
+        } else {
+          console.error('Expected an array but got:', data.Inventory);
+        }
+
         const reportResponse = await axios.get(`/api/inventory-reports`);
         const reportData = reportResponse.data;
         setTurnoverData(reportData.turnoverData);
@@ -51,26 +59,29 @@ const Inventory = () => {
   }, [server]);
 
   return (
-    <Box sx={{ padding: '20px', marginRight: '450px', marginTop: '50px'}}> {/* Fixed position for consistent alignment */}
-    <Typography variant="h4" gutterBottom>Inventory Management</Typography>
-    <div>
-    <Button 
-              variant="contained" 
-              color="secondary" 
-              onClick={handleLogout}
-              sx={{ mb: 2 }} // margin bottom
-            >
-              Logout
-            </Button>
-            </div>
+    <Box sx={{ padding: '20px', marginRight: '450px', marginTop: '50px' }}> {/* Fixed position for consistent alignment */}
+      <Typography variant="h4" gutterBottom>Inventory Management</Typography>
+      <div>
+        <Button
+          variant="contained"
+          color="secondary"
+          onClick={handleLogout}
+          sx={{ mb: 2 }} // margin bottom
+        >
+          Logout
+        </Button>
+      </div>
+
       {/* Low Stock Alert */}
       <LowStockAlert lowStockProducts={lowStockProducts} />
 
       {/* Inventory Table and Reports */}
       <InventoryTable data={inventoryData} />
-      <InventoryReports turnoverData={turnoverData}
+      <InventoryReports
+        turnoverData={turnoverData}
         popularProductsData={popularProductsData}
-        demandPredictionData={demandPredictionData}/>
+        demandPredictionData={demandPredictionData}
+      />
     </Box>
   );
 };

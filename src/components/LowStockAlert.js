@@ -10,12 +10,12 @@ const LowStockAlert = ({ lowStockProducts }) => (
       </Typography>
       <Grid container spacing={2} direction="column">
         {lowStockProducts.map((product) => (
-          <Grid item xs={12} key={product.product_name}>
+          <Grid item xs={12} key={product.Product_Name}>
             <Card sx={{ display: 'flex', justifyContent: 'center', padding: 1, bgcolor: '#FF7F7F', boxShadow: 3 }}>
               <CardContent>
-                <Typography variant="h6" noWrap>{product.product_name}</Typography>
+                <Typography variant="h6" noWrap>{product.Product_Name}</Typography>
                 <Typography variant="h5" color="primary" noWrap>
-                  Only {product.stock_level} left
+                  Only {product.Stock_Level} left
                 </Typography>
                 <Typography variant="body2" color="text.secondary" noWrap>
                   Location: {product.warehouse_location}

@@ -17,7 +17,7 @@ const InventoryTable = ({ data }) => {
             {data.map((product, index) => (
               <TableRow key={index} hover>
                 <TableCell>{product.Product_ID}</TableCell>
-                <TableCell>{product.Name}</TableCell>
+                <TableCell>{product.Product_Name}</TableCell>
                 <TableCell>{product.Stock_Level}</TableCell>
               </TableRow>
             ))}

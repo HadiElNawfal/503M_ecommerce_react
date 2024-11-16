@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { Box, TextField, Button, Typography, Checkbox, FormControlLabel } from '@mui/material';
-import config from '../config';
+//import config from '../config';
 import axios from '../axiosConfig';
 
 const AddProduct = ({ onClose, onAdd }) => {
-  const { server } = config;
+  //const { server } = config;
 
   // State for form fields
   const [name, setName] = useState('');

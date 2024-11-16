@@ -1,3 +1,4 @@
+// src/App.js
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import axios from './axiosConfig';
@@ -7,6 +8,7 @@ import Inventory from './admin/pages/Inventory';
 import Orders from './admin/pages/Orders';
 import Returns from './admin/pages/Returns';
 import Products from './admin/pages/Products';
+import Warehouse from './admin/pages/Warehouse'; 
 
 const ForceRefreshRedirect = ({ to }) => {
   useEffect(() => {
@@ -86,6 +88,7 @@ function App() {
   return (
     <Router>
       <Routes>
+        {/* Login Route */}
         <Route
           path="/login"
           element={
@@ -96,23 +99,36 @@ function App() {
             )
           }
         />
+
+        {/* Admin Routes */}
         {isAuthenticated && userRoles.includes('Admin') && adminUrl && (
           <Route path={`${adminUrl}/*`} element={<AdminDashboard />}>
             <Route path="inventory" element={<Inventory />} />
             <Route path="orders" element={<Orders />} />
             <Route path="returns" element={<Returns />} />
             <Route path="products" element={<Products />} />
+            <Route path="warehouse" element={<Warehouse />} />
           </Route>
         )}
+
+        {/* Inventory Manager Routes */}
         {isAuthenticated && userRoles.includes('Inventory Manager') && (
-          <Route path="/inventory" element={<Inventory />} />
+    
+            <Route path="/inventory" element={<Inventory />} />
+         
         )}
+
+        {/* Product Manager Routes */}
         {isAuthenticated && userRoles.includes('Product Manager') && (
           <Route path="/products" element={<Products />} />
         )}
+
+        {/* Order Manager Routes */}
         {isAuthenticated && userRoles.includes('Order Manager') && (
           <Route path="/orders" element={<Orders />} />
         )}
+
+        {/* Fallback Route */}
         <Route
           path="*"
           element={
