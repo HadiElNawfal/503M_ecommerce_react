@@ -2,7 +2,7 @@ import React from 'react';
 import { Box, List, ListItem, ListItemText, ListItemIcon } from '@mui/material';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import InventoryIcon from '@mui/icons-material/Inventory';
-import PeopleIcon from '@mui/icons-material/People';
+//import PeopleIcon from '@mui/icons-material/People';
 
 const Sidebar = ({ onSelect }) => {
   const menuItems = [
@@ -11,7 +11,6 @@ const Sidebar = ({ onSelect }) => {
     { text: "Orders", icon: <InventoryIcon />, key: "orders" },
     { text: "Returns", icon: <InventoryIcon />, key: "returns" },
     { text: "Products", icon: <InventoryIcon />, key: "products" },
-    { text: "Customers", icon: <PeopleIcon />, key: "customers" }
   ];
 
   return (

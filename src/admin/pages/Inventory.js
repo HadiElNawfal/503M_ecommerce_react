@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Typography } from '@mui/material';
+import { Box, Button, Typography } from '@mui/material';
 import InventoryTable from '../../components/InventoryTable';
 import InventoryReports from '../../components/InventoryReports';
 import LowStockAlert from '../../components/LowStockAlert';
 import config from '../../config'
+import axios from '../../axiosConfig';
 
 const Inventory = () => {
   const { server } = config;
@@ -13,23 +14,25 @@ const Inventory = () => {
   const [popularProductsData, setPopularProductsData] = useState({ labels: [], values: [] });
   const [demandPredictionData, setDemandPredictionData] = useState({ labels: [], values: [] });
 
+  const handleLogout = async () => {
+    try {
+      await axios.post('/api/logout');
+      window.location.replace('/login');
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
+  };
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch(`${server}/api/inventory`); // Corrected template string syntax
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`); // Corrected error handling syntax
-        }
-        const data = await response.json();
+        const response = await axios.get(`/api/inventory`);
+        const data = response.data;
         setInventoryData(data);
         const lowStock = data.filter(item => item.stock_level < 10);
         setLowStockProducts(lowStock);
-
-        const reportResponse = await fetch(`${server}/api/inventory-reports`);
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`); // Corrected error handling syntax
-        }
-        const reportData = await reportResponse.json();
+    
+        const reportResponse = await axios.get(`/api/inventory-reports`);
+        const reportData = reportResponse.data;
         setTurnoverData(reportData.turnoverData);
         setPopularProductsData(reportData.popularProductsData);
         setDemandPredictionData(reportData.demandPredictionData);
@@ -48,7 +51,16 @@ const Inventory = () => {
   return (
     <Box sx={{ padding: '20px', marginRight: '450px', marginTop: '50px'}}> {/* Fixed position for consistent alignment */}
     <Typography variant="h4" gutterBottom>Inventory Management</Typography>
-
+    <div>
+    <Button 
+              variant="contained" 
+              color="secondary" 
+              onClick={handleLogout}
+              sx={{ mb: 2 }} // margin bottom
+            >
+              Logout
+            </Button>
+            </div>
       {/* Low Stock Alert */}
       <LowStockAlert lowStockProducts={lowStockProducts} />
 

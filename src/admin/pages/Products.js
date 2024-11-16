@@ -3,7 +3,7 @@ import { Box, Typography, Button, Modal, Table, TableBody, TableCell, TableConta
 import AddProduct from '../../components/AddProduct';
 import UpdateProduct from '../../components/UpdateProduct';
 import RemoveProduct from '../../components/RemoveProduct';
-
+import axios from '../../axiosConfig';
 import config from '../../config';
 import Papa from 'papaparse';
 
@@ -14,8 +14,16 @@ const Products = () => {
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [isUpdateOpen, setIsUpdateOpen] = useState(false);
   const [isRemoveOpen, setIsRemoveOpen] = useState(false);
-  const [isPricingOpen, setIsPricingOpen] = useState(false);
+  //const [isPricingOpen, setIsPricingOpen] = useState(false);
   const [csvFile, setCsvFile] = useState(null);
+    const handleLogout = async () => {
+      try {
+        await axios.post('/api/logout');
+        window.location.replace('/login');
+      } catch (error) {
+        console.error('Logout error:', error);
+      }
+    };
 
   const fetchData = useCallback(async () => {
     try {
@@ -50,12 +58,6 @@ const Products = () => {
     setIsRemoveOpen(true);
   };
   const closeRemoveModal = () => setIsRemoveOpen(false);
-
-  const openPricingModal = (product) => {
-    setSelectedProduct(product);
-    setIsPricingOpen(true);
-  };
-  const closePricingModal = () => setIsPricingOpen(false);
 
   const handleCsvUpload = (event) => {
     setCsvFile(event.target.files[0]);
@@ -98,6 +100,16 @@ const Products = () => {
   return (
     <Box sx={{ padding: '20px', marginLeft: '250px' }}>
       <Typography variant="h4" gutterBottom>Product Management</Typography>
+      <div>
+      <Button 
+              variant="contained" 
+              color="secondary" 
+              onClick={handleLogout}
+              sx={{ mb: 2 }} // margin bottom
+            >
+              Logout
+            </Button>
+            </div>
       <Button variant="contained" onClick={openAddModal} sx={{ mb: 3 }}>Add Product</Button>
 
       <Box sx={{ mb: 3 }}>

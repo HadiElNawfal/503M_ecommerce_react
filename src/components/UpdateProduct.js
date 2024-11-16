@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { Box, TextField, Button, Typography, Checkbox, FormControlLabel } from '@mui/material';
-import config from '../config';
+//import config from '../config';
+import axios from '../axiosConfig';
 
 const UpdateProduct = ({ product, onClose, onUpdate }) => {
-  const { server } = config;
+  //const { server } = config;
 
   // State for each field with initial values from the product
   const [errorMessage, setErrorMessage] = useState(''); // State to store error messages
@@ -41,14 +42,18 @@ const UpdateProduct = ({ product, onClose, onUpdate }) => {
     if (subCategoryId !== product.SubCategory_ID) updatedFields.SubCategory_ID = parseInt(subCategoryId);
 
     try {
-      const response = await fetch(`${server}/api/update_product/${product.Product_ID}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(updatedFields),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
+      const response = await axios.put(
+        `/api/update_product/${product.Product_ID}`,
+        updatedFields, // Axios automatically stringifies the body as JSON
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+    
+      if (response.status !== 200) {
+        const errorData = response.data;
         console.log(errorData);
         setErrorMessage(errorData.error || 'An error occurred while updating the product.');
       } else {
@@ -57,7 +62,7 @@ const UpdateProduct = ({ product, onClose, onUpdate }) => {
       }
     } catch (error) {
       console.error('Error updating product:', error);
-      setErrorMessage('Failed to update product. Please try again.');
+      setErrorMessage(error.response?.data?.error || 'Failed to update product. Please try again.');
     }
   };
 

@@ -1,5 +1,6 @@
 import React from 'react';
 import { Box, Typography, Button } from '@mui/material';
+import axios from '../axiosConfig';
 import config from '../config';
 
 const RemoveProduct = ({ product, onClose, onRemove }) => {
@@ -13,19 +14,12 @@ const RemoveProduct = ({ product, onClose, onRemove }) => {
     }
 
     try {
-      const response = await fetch(`${server}/api/delete_product/${product.Product_ID}`, {
-        method: 'DELETE',
-      });
-
-      if (!response.ok) {
-        console.error('Failed to delete product');
-      } else {
-        console.log(`Product ${product.Product_ID} deleted successfully`);
-        onRemove(); // Trigger parent component to refresh the product list
-        onClose(); // Close the modal
-      }
+      await axios.delete(`${server}/api/delete_product/${product.Product_ID}`);
+      console.log(`Product ${product.Product_ID} deleted successfully`);
+      onRemove(); // Trigger parent component to refresh the product list
+      onClose(); // Close the modal
     } catch (err) {
-      console.error('Error:', err);
+      console.error('Error deleting product:', err);
     }
   };
 

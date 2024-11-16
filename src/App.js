@@ -20,7 +20,6 @@ function App() {
   const [userRoles, setUserRoles] = useState([]);
   const [adminUrl, setAdminUrl] = useState('');
   const [isLoading, setIsLoading] = useState(true);
-  const [redirecting, setRedirecting] = useState(false); // Flag to prevent multiple redirects
 
   const handleLoginSuccess = async () => {
     setIsAuthenticated(true);
@@ -29,7 +28,7 @@ function App() {
   useEffect(() => {
     const fetchCsrfToken = async () => {
       try {
-        const response = await axios.get('/api/get-csrf-token');
+        await axios.get('/api/get-csrf-token');
       } catch (error) {
         console.error('Failed to fetch CSRF token:', error);
       }
@@ -40,11 +39,9 @@ function App() {
     }
   }, [isAuthenticated]);
 
-
   useEffect(() => {
     const init = async () => {
       try {
-
         const response = await axios.get('/api/check-auth');
         if (response.status === 200 && response.data.authenticated) {
           setIsAuthenticated(true);
@@ -53,16 +50,6 @@ function App() {
           if (response.data.roles.includes('Admin')) {
             const adminResponse = await axios.get('/api/get-admin-url');
             setAdminUrl(adminResponse.data.admin_url);
-          } else {
-            // User is authenticated but not an Admin
-            if (!redirecting) {
-              setRedirecting(true); // Prevent further redirects
-              await axios.post('/api/logout');
-              setIsAuthenticated(false);
-              setUserRoles([]);
-              setAdminUrl('');
-              // Optional: You can display a message here using state
-            }
           }
         } else {
           setIsAuthenticated(false);
@@ -76,11 +63,25 @@ function App() {
     };
 
     init();
-  }, [redirecting]);
+  }, []);
 
   if (isLoading) {
     return <div>Loading...</div>;
   }
+
+  const getRedirectPath = () => {
+    if (userRoles.includes('Admin') && adminUrl) {
+      return adminUrl;
+    } else if (userRoles.includes('Inventory Manager')) {
+      return '/inventory';
+    } else if (userRoles.includes('Product Manager')) {
+      return '/products';
+    } else if (userRoles.includes('Order Manager')) {
+      return '/orders';
+    } else {
+      return '/login';
+    }
+  };
 
   return (
     <Router>
@@ -91,7 +92,7 @@ function App() {
             !isAuthenticated ? (
               <LoginForm onLoginSuccess={handleLoginSuccess} />
             ) : (
-              <ForceRefreshRedirect to={adminUrl} />
+              <ForceRefreshRedirect to={getRedirectPath()} />
             )
           }
         />
@@ -103,11 +104,20 @@ function App() {
             <Route path="products" element={<Products />} />
           </Route>
         )}
+        {isAuthenticated && userRoles.includes('Inventory Manager') && (
+          <Route path="/inventory" element={<Inventory />} />
+        )}
+        {isAuthenticated && userRoles.includes('Product Manager') && (
+          <Route path="/products" element={<Products />} />
+        )}
+        {isAuthenticated && userRoles.includes('Order Manager') && (
+          <Route path="/orders" element={<Orders />} />
+        )}
         <Route
           path="*"
           element={
-            isAuthenticated && userRoles.includes('Admin') ? (
-              <Navigate to={adminUrl} replace />
+            isAuthenticated ? (
+              <Navigate to={getRedirectPath()} replace />
             ) : (
               <Navigate to="/login" replace />
             )
