@@ -1,49 +1,75 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Box, Typography, Button, Modal, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, TextField } from '@mui/material';
+import {
+  Box,
+  Typography,
+  Button,
+  Modal,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  TextField
+} from '@mui/material';
 import AddProduct from '../../components/AddProduct';
 import UpdateProduct from '../../components/UpdateProduct';
 import RemoveProduct from '../../components/RemoveProduct';
-import axios from '../../axiosConfig';
-import config from '../../config';
+import axios from '../../axiosConfig'; // Import the configured axios instance
 import Papa from 'papaparse';
 
 const Products = () => {
-  const { server } = config;
-  const [products, setProducts] = useState([]);
+  // State for managing products and modals
+  const [products, setProducts] = useState([]); // Initialize as empty array to prevent map errors
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [isUpdateOpen, setIsUpdateOpen] = useState(false);
   const [isRemoveOpen, setIsRemoveOpen] = useState(false);
-  //const [isPricingOpen, setIsPricingOpen] = useState(false);
   const [csvFile, setCsvFile] = useState(null);
-    const handleLogout = async () => {
-      try {
-        await axios.post('/api/logout');
-        window.location.replace('/login');
-      } catch (error) {
-        console.error('Logout error:', error);
-      }
-    };
 
+  // Handle user logout
+  const handleLogout = async () => {
+    try {
+      await axios.post('/api/logout');
+      localStorage.removeItem('token');
+      delete axios.defaults.headers.common['Authorization'];
+      window.location.replace('/login'); // Force navigation
+    } catch (error) {
+      console.error('Logout error:', error); // Detailed error log
+    }
+  };
+
+  // Function to fetch products from the backend
   const fetchData = useCallback(async () => {
     try {
-      const response = await fetch(`${server}/api/view_products`);
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+      const response = await axios.get('/api/view_products');
+      console.log('API Response:', response.data); // Log the response for debugging
+
+      // Check if the response is an array
+      if (Array.isArray(response.data)) {
+        setProducts(response.data);
+      } else if (response.data && Array.isArray(response.data.products)) {
+        // Fallback if the response has a 'products' key
+        setProducts(response.data.products);
+      } else {
+        console.error('Unexpected API response structure:', response.data);
+        setProducts([]); // Fallback to empty array
       }
-      const data = await response.json();
-      setProducts(data);
     } catch (error) {
       console.error('Error fetching products:', error);
+      setProducts([]); // Fallback to empty array on error
     }
-  }, [server]);
+  }, []);
 
+  // Fetch products on component mount and set up interval for refreshing
   useEffect(() => {
     fetchData();
-    const intervalId = setInterval(fetchData, 10000);
-    return () => clearInterval(intervalId);
+    const intervalId = setInterval(fetchData, 10000); // Refresh every 10 seconds
+    return () => clearInterval(intervalId); // Cleanup on unmount
   }, [fetchData]);
 
+  // Modal handlers
   const openAddModal = () => setIsAddOpen(true);
   const closeAddModal = () => setIsAddOpen(false);
 
@@ -59,10 +85,12 @@ const Products = () => {
   };
   const closeRemoveModal = () => setIsRemoveOpen(false);
 
+  // Handle CSV file selection
   const handleCsvUpload = (event) => {
     setCsvFile(event.target.files[0]);
   };
 
+  // Process and upload CSV file
   const processCsvFile = () => {
     if (!csvFile) {
       console.error('No file selected');
@@ -75,15 +103,11 @@ const Products = () => {
       complete: async (result) => {
         const productsData = result.data;
         try {
-          const response = await fetch(`${server}/api/bulk-add-products`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ products: productsData })
-          });
-          if (response.ok) {
+          const response = await axios.post('/api/bulk-add-products', { products: productsData });
+          if (response.status === 200) {
             fetchData();
             console.log('Bulk upload successful');
-            setCsvFile(null);
+            setCsvFile(null); // Reset file input
           } else {
             console.error('Bulk upload failed');
           }
@@ -100,18 +124,23 @@ const Products = () => {
   return (
     <Box sx={{ padding: '20px', marginLeft: '250px' }}>
       <Typography variant="h4" gutterBottom>Product Management</Typography>
+
+      {/* Logout Button */}
       <div>
-      <Button 
-              variant="contained" 
-              color="secondary" 
-              onClick={handleLogout}
-              sx={{ mb: 2 }} // margin bottom
-            >
-              Logout
-            </Button>
-            </div>
+        <Button 
+          variant="contained" 
+          color="secondary" 
+          onClick={handleLogout}
+          sx={{ mb: 2 }} // margin bottom
+        >
+          Logout
+        </Button>
+      </div>
+
+      {/* Add Product Button */}
       <Button variant="contained" onClick={openAddModal} sx={{ mb: 3 }}>Add Product</Button>
 
+      {/* Bulk Upload Section */}
       <Box sx={{ mb: 3 }}>
         <Typography variant="h6" gutterBottom>Bulk Upload Products</Typography>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
@@ -120,10 +149,13 @@ const Products = () => {
             inputProps={{ accept: ".csv" }}
             onChange={handleCsvUpload}
           />
-          <Button variant="contained" onClick={processCsvFile} disabled={!csvFile}>Upload CSV</Button>
+          <Button variant="contained" onClick={processCsvFile} disabled={!csvFile}>
+            Upload CSV
+          </Button>
         </Box>
       </Box>
 
+      {/* Products Table */}
       <TableContainer component={Paper}>
         <Table>
           <TableHead>
@@ -141,45 +173,68 @@ const Products = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {products.map((product) => (
-              <TableRow key={product.Product_ID}>
-                <TableCell>{product.Product_ID}</TableCell>
-                <TableCell>{product.Name}</TableCell>
-                <TableCell>{product.Description}</TableCell>
-                <TableCell>${product.Price.toFixed(2)}</TableCell>
-                <TableCell>{product.Discount_Percentage || 0}%</TableCell>
-                <TableCell>
-                  {product.ImageURL ? (
-                    <img src={product.ImageURL} alt={product.Name} width="50" height="50" />
-                  ) : (
-                    'No Image'
-                  )}
-                </TableCell>
-                <TableCell>{product.Listed ? 'Yes' : 'No'}</TableCell>
-                <TableCell>{product.Category_ID || 'N/A'}</TableCell>
-                <TableCell>{product.SubCategory_ID || 'N/A'}</TableCell>
-                <TableCell>
-                  <Button onClick={() => openUpdateModal(product)} variant="outlined" sx={{ mr: 1 }}>Edit</Button>
-                  <Button onClick={() => openRemoveModal(product)} variant="outlined" color="error">Remove</Button>
+            {products.length > 0 ? (
+              products.map((product) => (
+                <TableRow key={product.Product_ID}>
+                  <TableCell>{product.Product_ID}</TableCell>
+                  <TableCell>{product.Name}</TableCell>
+                  <TableCell>{product.Description}</TableCell>
+                  <TableCell>${product.Price.toFixed(2)}</TableCell>
+                  <TableCell>{product.Discount_Percentage || 0}%</TableCell>
+                  <TableCell>
+                    {product.ImageURL ? (
+                      <img src={product.ImageURL} alt={product.Name} width="50" height="50" />
+                    ) : (
+                      'No Image'
+                    )}
+                  </TableCell>
+                  <TableCell>{product.Listed ? 'Yes' : 'No'}</TableCell>
+                  <TableCell>{product.Category_ID || 'N/A'}</TableCell>
+                  <TableCell>{product.SubCategory_ID || 'N/A'}</TableCell>
+                  <TableCell>
+                    <Button 
+                      onClick={() => openUpdateModal(product)} 
+                      variant="outlined" 
+                      sx={{ mr: 1 }}
+                    >
+                      Edit
+                    </Button>
+                    <Button 
+                      onClick={() => openRemoveModal(product)} 
+                      variant="outlined" 
+                      color="error"
+                    >
+                      Remove
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell colSpan={10} align="center">
+                  No products available.
                 </TableCell>
               </TableRow>
-            ))}
+            )}
           </TableBody>
         </Table>
       </TableContainer>
 
+      {/* Add Product Modal */}
       <Modal open={isAddOpen} onClose={closeAddModal}>
         <Box sx={{ maxWidth: 500, mx: 'auto', p: 4, bgcolor: 'background.paper', mt: 8 }}>
           <AddProduct onClose={closeAddModal} onAdd={fetchData} />
         </Box>
       </Modal>
 
+      {/* Update Product Modal */}
       <Modal open={isUpdateOpen} onClose={closeUpdateModal}>
         <Box sx={{ maxWidth: 500, mx: 'auto', p: 4, bgcolor: 'background.paper', mt: 8 }}>
           <UpdateProduct product={selectedProduct} onClose={closeUpdateModal} onUpdate={fetchData} />
         </Box>
       </Modal>
 
+      {/* Remove Product Modal */}
       <Modal open={isRemoveOpen} onClose={closeRemoveModal}>
         <Box sx={{ maxWidth: 500, mx: 'auto', p: 4, bgcolor: 'background.paper', mt: 8 }}>
           <RemoveProduct product={selectedProduct} onClose={closeRemoveModal} onRemove={fetchData} />

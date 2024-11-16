@@ -7,21 +7,36 @@ const instance = axios.create({
   withCredentials: true
 });
 
+function getAuthToken() {
+  return localStorage.getItem('token');
+}
+
 function getCsrfTokenFromCookie() {
-  const value = `${document.cookie}`;
-  const parts = value.split('; csrf_token=');
-  if (parts.length === 2) return parts.pop().split(';').shift();
+  const name = 'csrf_token=';
+  const cookies = document.cookie.split(';');
+  for (let i = 0; i < cookies.length; i++) {
+    let cookie = cookies[i].trim();
+    if (cookie.startsWith(name)) {
+      return cookie.substring(name.length);
+    }
+  }
   return '';
 }
 
 // Request interceptor
 instance.interceptors.request.use(
   (config) => {
+    const token = getAuthToken();
+    if (token) {
+      config.headers['Authorization'] = `Bearer ${token}`;
+    }
+
+    // CSRF token code remains the same
     const csrfToken = getCsrfTokenFromCookie();
     if (csrfToken) {
       config.headers['X-CSRFToken'] = csrfToken;
-      console.log(`[DEBUG] CSRF Token set in headers: ${csrfToken}`);
     }
+
     return config;
   },
   (error) => Promise.reject(error)
@@ -35,16 +50,11 @@ instance.interceptors.response.use(
       window.location.href = '/login';
     } else if (error.response && error.response.status === 403) {
       // Redirect to Not Authorized page
-      window.location.href = '/not-authorized';
+      window.location.href = '/login';
     }
     return Promise.reject(error);
   }
 );
 
-function getCookie(name) {
-  const value = `; ${document.cookie}`;
-  const parts = value.split(`; ${name}=`);
-  if (parts.length === 2) return parts.pop().split(';').shift();
-}
 
 export default instance;

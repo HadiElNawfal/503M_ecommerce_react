@@ -11,18 +11,16 @@ import axios from '../../axiosConfig'
 import config from '../../config'
 
 const AdminDashboard = () => {
- const handleLogout = async () => {
-  console.log('Logout initiated'); // Debug log
-  try {
-    const response = await axios.post('/api/logout');
-    console.log('Logout response:', response); // Debug log
-    
-    // Clear React state through App component
-    window.location.replace('/login'); // Force navigation
-  } catch (error) {
-    console.error('Logout error details:', error.response || error); // Detailed error log
-  }
-};
+  const handleLogout = async () => {
+    try {
+      await axios.post('/api/logout');
+      localStorage.removeItem('token');
+      delete axios.defaults.headers.common['Authorization'];
+      window.location.replace('/login'); // Force navigation
+    } catch (error) {
+      console.error('Logout error:', error); // Detailed error log
+    }
+  };
   const { server } = config;
   const [selectedPage, setSelectedPage] = useState("dashboard");
   const [dashboardData, setDashboardData] = useState({

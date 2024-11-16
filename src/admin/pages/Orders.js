@@ -34,9 +34,11 @@ const Orders = () => {
   const handleLogout = async () => {
     try {
       await axios.post('/api/logout');
-      window.location.replace('/login');
+      localStorage.removeItem('token');
+      delete axios.defaults.headers.common['Authorization'];
+      window.location.replace('/login'); // Force navigation
     } catch (error) {
-      console.error('Logout error:', error);
+      console.error('Logout error:', error); // Detailed error log
     }
   };
 

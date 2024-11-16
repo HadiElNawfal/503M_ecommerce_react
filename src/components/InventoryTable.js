@@ -1,4 +1,3 @@
-// src/components/InventoryTable.js
 import React from 'react';
 import { Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from '@mui/material';
 
@@ -9,17 +8,17 @@ const InventoryTable = ({ data }) => {
         <Table>
           <TableHead>
             <TableRow sx={{ backgroundColor: '#FFFFF' }}>
+              <TableCell sx={{ color: '#000', fontWeight: 'bold' }}>Product ID</TableCell>
               <TableCell sx={{ color: '#000', fontWeight: 'bold' }}>Product Name</TableCell>
               <TableCell sx={{ color: '#000', fontWeight: 'bold' }}>Stock Level</TableCell>
-              <TableCell sx={{ color: '#000', fontWeight: 'bold' }}>Warehouse Location</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {data.map((product, index) => (
               <TableRow key={index} hover>
-                <TableCell>{product.product_name}</TableCell>
-                <TableCell>{product.stock_level}</TableCell>
-                <TableCell>{product.warehouse_location}</TableCell>
+                <TableCell>{product.Product_ID}</TableCell>
+                <TableCell>{product.Name}</TableCell>
+                <TableCell>{product.Stock_Level}</TableCell>
               </TableRow>
             ))}
           </TableBody>
@@ -29,4 +28,4 @@ const InventoryTable = ({ data }) => {
   );
 };
 
-export default InventoryTable;
+export default InventoryTable;

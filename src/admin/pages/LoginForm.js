@@ -10,7 +10,9 @@ const LoginForm = ({ onLoginSuccess }) => {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('/api/login', { username, password });
+      const response = await axios.post('/api/login', { username, password });
+      const { token } = response.data;
+      localStorage.setItem('token', token);
       onLoginSuccess();
     } catch (error) {
       console.error('Login failed', error);
