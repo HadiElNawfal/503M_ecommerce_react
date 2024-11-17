@@ -1,3 +1,5 @@
+// src/pages/Inventory.js
+
 import React, { useEffect, useState } from 'react';
 import { Box, Button, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
@@ -31,23 +33,22 @@ const Inventory = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get(`/api/view_inventory`)
-        .then(response => {
-          setInventoryData(response.data.inventory); // Access the 'inventory' key
-        })
-        ;
+        // Make the GET request without using .then()
+        const response = await axios.get(`/api/view_inventory`);
         const data = response.data;
-        console.log(data);
+        console.log('Inventory Response:', data);
 
-        // Validate that data.Inventory is an array
-        if (Array.isArray(data.Inventory)) {
-          setInventoryData(data.Inventory);
-          const lowStock = data.Inventory.filter(item => item.Stock_Level < 10);
+        // Validate that data.inventory is an array
+        if (Array.isArray(data.inventory)) {
+          setInventoryData(data.inventory);
+          const lowStock = data.inventory.filter(item => item.Stock_Level < 10);
           setLowStockProducts(lowStock);
+          console.log('Low Stock Products:', lowStock); // Optional: For debugging
         } else {
-          console.error('Expected an array but got:', data.Inventory);
+          console.error('Expected an array but got:', data.inventory);
         }
 
+        // Fetch inventory reports
         const reportResponse = await axios.get(`/api/inventory/turnover`);
         const reportData = reportResponse.data;
         setTurnoverData(reportData.turnoverData);
@@ -59,7 +60,7 @@ const Inventory = () => {
     };
 
     fetchData();
-    const intervalId = setInterval(fetchData, 10000); // 10000 ms = 10 seconds
+    const intervalId = setInterval(fetchData, 10000); // 10 seconds
 
     // Cleanup interval on component unmount
     return () => clearInterval(intervalId);
