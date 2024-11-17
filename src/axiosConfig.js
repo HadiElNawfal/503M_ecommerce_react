@@ -7,6 +7,19 @@ const instance = axios.create({
   withCredentials: true
 });
 
+const logout = async () => {
+  try {
+    await instance.post('/api/logout'); // Call the logout API endpoint
+  } catch (error) {
+    console.error('Logout failed:', error);
+    // Optional: Handle specific logout errors if necessary
+  } finally {
+    localStorage.removeItem('token'); // Remove the token from localStorage
+    delete instance.defaults.headers.common['Authorization']; // Remove the Authorization header
+    window.location.href = '/login'; // Redirect to the login page
+  }
+};
+
 function getAuthToken() {
   return localStorage.getItem('token');
 }
@@ -47,10 +60,9 @@ instance.interceptors.response.use(
   (error) => {
     const currentPath = window.location.pathname;
     if (error.response && error.response.status === 401 && currentPath !== '/login' && !currentPath.startsWith('/reset-password')) {
-      window.location.href = '/login';
+      logout();
     } else if (error.response && error.response.status === 403 && currentPath !== '/login' && !currentPath.startsWith('/reset-password')) {
-      // Redirect to Not Authorized page
-      window.location.href = '/login';
+      logout();
     }
     return Promise.reject(error);
   }

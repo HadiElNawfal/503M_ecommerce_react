@@ -12,11 +12,26 @@ import Warehouse from './admin/pages/Warehouse';
 import PasswordReset from './admin/pages/PasswordReset';
 import ResetPassword from './admin/pages/ResetPassword';
 
+
+
 const ForceRefreshRedirect = ({ to }) => {
   useEffect(() => {
     window.location.href = to;
   }, [to]);
   return <div>Redirecting...</div>;
+};
+
+const logout = async () => {
+  try {
+    await axios.post('/api/logout'); // Call the logout API endpoint using axios
+  } catch (error) {
+    console.error('Logout failed:', error);
+    // Optional: Handle specific logout errors if necessary
+  } finally {
+    localStorage.removeItem('token'); // Remove the token from localStorage
+    delete axios.defaults.headers.common['Authorization']; // Remove the Authorization header
+    window.location.href = '/login'; // Redirect to the login page
+  }
 };
 
 function App() {
@@ -50,6 +65,11 @@ function App() {
         if (response.status === 200 && response.data.authenticated) {
           setIsAuthenticated(true);
           setUserRoles(response.data.roles);
+
+          if (response.data.roles.includes('Customer')) {
+            setIsAuthenticated(false);
+            logout();
+          }
 
           if (response.data.roles.includes('Admin')) {
             const adminResponse = await axios.get('/api/get-admin-url');
