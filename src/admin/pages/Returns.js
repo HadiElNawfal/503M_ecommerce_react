@@ -1,31 +1,36 @@
+// src/pages/admin/Returns.js
+
 import React, { useEffect, useState } from 'react';
 import {
   Box,
   Typography,
-  CircularProgress,
   Button,
   Table,
-  TableHead,
   TableBody,
-  TableRow,
   TableCell,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Snackbar,
+  Alert,
   Select,
   MenuItem,
+  CircularProgress,
 } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 import axios from '../../axiosConfig';
 import config from '../../config';
 
 const Returns = () => {
   const { server } = config;
   const [returns, setReturns] = useState([]);
-  const [selectedReturn, setSelectedReturn] = useState(null);
-  const [newStatus, setNewStatus] = useState('');
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [snackbarSeverity, setSnackbarSeverity] = useState('success');
+
+  const navigate = useNavigate();
 
   const handleLogout = async () => {
     try {
@@ -34,13 +39,13 @@ const Returns = () => {
       delete axios.defaults.headers.common['Authorization'];
       window.location.replace('/login'); // Force navigation
     } catch (error) {
-      console.error('Logout error:', error); // Detailed error log
+      console.error('Logout error:', error);
     }
   };
 
   const fetchReturns = async () => {
     try {
-      const response = await axios.get(`/api/returns`);
+      const response = await axios.get('/api/view_return');
       setReturns(response.data);
     } catch (error) {
       console.error('Failed to load returned orders:', error);
@@ -56,125 +61,138 @@ const Returns = () => {
     return () => clearInterval(intervalId);
   }, [server]);
 
-  const handleEdit = (returnOrder) => {
-    setSelectedReturn(returnOrder);
-    setNewStatus(returnOrder.return_status);
-  };
-
-  const handleCloseModal = () => {
-    setSelectedReturn(null);
-    setNewStatus('');
-  };
-
-  const handleUpdate = async () => {
+  const handleStatusChange = async (Return_ID, newStatus) => {
     try {
-      await axios.put(`/api/returns/${selectedReturn.return_id}`, {
-        return_status: newStatus,
+      // Update the status locally for immediate UI feedback
+      const updatedReturns = returns.map((returnOrder) =>
+        returnOrder.Return_ID === Return_ID
+          ? { ...returnOrder, Status: newStatus }
+          : returnOrder
+      );
+      setReturns(updatedReturns);
+
+      // Send the update request to the backend
+      await axios.put(`/api/update_return/${Return_ID}`, {
+        Status: newStatus,
       });
-      fetchReturns();
-      handleCloseModal();
+
+      // Show a success message
+      setSnackbarMessage(`Return ${Return_ID} status updated to ${newStatus}`);
+      setSnackbarSeverity('success');
+      setSnackbarOpen(true);
     } catch (error) {
-      console.error('Error updating return status:', error);
-      setError('Failed to update return status. Please try again.');
+      // Handle errors and show an error message
+      console.error(`Failed to update status for return ${Return_ID}:`, error);
+      setSnackbarMessage(`Failed to update status for return ${Return_ID}`);
+      setSnackbarSeverity('error');
+      setSnackbarOpen(true);
     }
   };
 
+  if (loading) {
+    return (
+      <Box sx={{ textAlign: 'center', marginTop: '50px' }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
   return (
-    <Box sx={{ p: 3 }}>
+    <Box sx={{ padding: '20px' }}>
+      {/* Snackbar for success/error messages */}
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={6000}
+        onClose={() => setSnackbarOpen(false)}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      >
+        <Alert
+          onClose={() => setSnackbarOpen(false)}
+          severity={snackbarSeverity}
+          sx={{ width: '100%' }}
+        >
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
+
       {/* Header Section */}
       <Typography variant="h4" gutterBottom>
         Returns Management
       </Typography>
-      <Button
-        variant="contained"
-        color="secondary"
-        onClick={handleLogout}
-        sx={{ mt: 2, mb: 3 }} // Add margin-top for spacing below the header
-      >
-        Logout
-      </Button>
+      <div>
+        <Button
+          variant="contained"
+          color="secondary"
+          onClick={handleLogout}
+          sx={{ mb: 2 }}
+        >
+          Logout
+        </Button>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={() => navigate('/orders')}
+          sx={{ mb: 2, ml: 2 }}
+        >
+          Go to Orders
+        </Button>
+      </div>
 
-      {/* Error Message */}
-      {error && <Typography color="error">{error}</Typography>}
-
-      {/* Loading Indicator */}
-      {loading ? (
-        <CircularProgress />
-      ) : (
+      {/* Returns Table */}
+      <TableContainer component={Paper}>
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell>Return ID</TableCell>
-              <TableCell>Order ID</TableCell>
-              <TableCell>Product Name</TableCell>
-              <TableCell>Customer Name</TableCell>
-              <TableCell>Reason</TableCell>
-              <TableCell>Status</TableCell>
-              <TableCell>Action</TableCell>
+              <TableCell sx={{ fontWeight: 'bold' }}>Return ID</TableCell>
+              <TableCell sx={{ fontWeight: 'bold' }}>Return Date</TableCell>
+              <TableCell sx={{ fontWeight: 'bold' }}>Status</TableCell>
+              <TableCell sx={{ fontWeight: 'bold' }}>Refund Amount</TableCell>
+              <TableCell sx={{ fontWeight: 'bold' }}>Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {returns.map((returnOrder) => (
-              <TableRow key={returnOrder.return_id}>
-                <TableCell>{returnOrder.return_id}</TableCell>
-                <TableCell>{returnOrder.order_id}</TableCell>
-                <TableCell>{returnOrder.product_name}</TableCell>
-                <TableCell>{returnOrder.customer_name}</TableCell>
-                <TableCell>{returnOrder.return_reason}</TableCell>
-                <TableCell>{returnOrder.return_status}</TableCell>
-                <TableCell>{returnOrder.requested_action}</TableCell>
-                <TableCell>
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={() => handleEdit(returnOrder)}
-                  >
-                    Update
-                  </Button>
+            {returns.length > 0 ? (
+              returns.map((returnOrder) => (
+                <TableRow key={returnOrder.Return_ID}>
+                  <TableCell>{returnOrder.Return_ID}</TableCell>
+                  <TableCell>{returnOrder.Return_Date}</TableCell>
+                  <TableCell>{returnOrder.Status}</TableCell>
+                  <TableCell>
+                    ${parseFloat(returnOrder.Refund_Amount).toFixed(2)}
+                  </TableCell>
+                  <TableCell>
+                    <Select
+                      value={returnOrder.Status}
+                      onChange={(e) =>
+                        handleStatusChange(
+                          returnOrder.Return_ID,
+                          e.target.value
+                        )
+                      }
+                      variant="outlined"
+                      size="small"
+                      sx={{ minWidth: 150 }}
+                    >
+                      <MenuItem value="Pending">Pending</MenuItem>
+                      <MenuItem value="Refund Issued">Refund Issued</MenuItem>
+                      <MenuItem value="Replacement Sent">
+                        Replacement Sent
+                      </MenuItem>
+                      <MenuItem value="Return Denied">Return Denied</MenuItem>
+                    </Select>
+                  </TableCell>
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell colSpan={5} align="center">
+                  No returns available
                 </TableCell>
               </TableRow>
-            ))}
+            )}
           </TableBody>
         </Table>
-      )}
-
-      {/* Update Return Modal */}
-      {selectedReturn && (
-        <Dialog open onClose={handleCloseModal}>
-          <DialogTitle>Update Return Order</DialogTitle>
-          <DialogContent>
-            <Typography variant="subtitle1">
-              Return ID: {selectedReturn.return_id}
-            </Typography>
-            <Typography variant="subtitle1">
-              Customer: {selectedReturn.customer_name}
-            </Typography>
-            <Typography variant="subtitle1">
-              Product: {selectedReturn.product_name}
-            </Typography>
-            <Typography variant="subtitle1">
-              Reason: {selectedReturn.return_reason}
-            </Typography>
-            <Select
-              value={newStatus}
-              onChange={(e) => setNewStatus(e.target.value)}
-              fullWidth
-              sx={{ mt: 2 }}
-            >
-              <MenuItem value="Pending">Pending</MenuItem>
-              <MenuItem value="Refund Issued">Issue Refund</MenuItem>
-              <MenuItem value="Replacement Sent">Send Replacement</MenuItem>
-              <MenuItem value="Return Denied">Deny Return</MenuItem>
-            </Select>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={handleCloseModal}>Cancel</Button>
-            <Button variant="contained" color="primary" onClick={handleUpdate}>
-              Update
-            </Button>
-          </DialogActions>
-        </Dialog>
-      )}
+      </TableContainer>
     </Box>
   );
 };

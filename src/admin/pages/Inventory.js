@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Box, Button, Typography } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 import InventoryTable from '../../components/InventoryTable';
 import InventoryReports from '../../components/InventoryReports';
 import LowStockAlert from '../../components/LowStockAlert';
@@ -13,6 +14,8 @@ const Inventory = () => {
   const [turnoverData, setTurnoverData] = useState({ labels: [], values: [] });
   const [popularProductsData, setPopularProductsData] = useState({ labels: [], values: [] });
   const [demandPredictionData, setDemandPredictionData] = useState({ labels: [], values: [] });
+
+  const navigate = useNavigate();
 
   const handleLogout = async () => {
     try {
@@ -35,13 +38,13 @@ const Inventory = () => {
         // Validate that data.Inventory is an array
         if (Array.isArray(data.Inventory)) {
           setInventoryData(data.Inventory);
-          const lowStock = data.Inventory.filter(item => item.stock_level < 10);
+          const lowStock = data.Inventory.filter(item => item.Stock_Level < 10);
           setLowStockProducts(lowStock);
         } else {
           console.error('Expected an array but got:', data.Inventory);
         }
 
-        const reportResponse = await axios.get(`/api/inventory-reports`);
+        const reportResponse = await axios.get(`/api/inventory/turnover`);
         const reportData = reportResponse.data;
         setTurnoverData(reportData.turnoverData);
         setPopularProductsData(reportData.popularProductsData);
@@ -59,7 +62,7 @@ const Inventory = () => {
   }, [server]);
 
   return (
-    <Box sx={{ padding: '20px', marginRight: '450px', marginTop: '50px' }}> {/* Fixed position for consistent alignment */}
+    <Box sx={{ padding: '20px', marginRight: '450px', marginTop: '70px' }}> {/* Fixed position for consistent alignment */}
       <Typography variant="h4" gutterBottom>Inventory Management</Typography>
       <div>
         <Button
@@ -69,6 +72,14 @@ const Inventory = () => {
           sx={{ mb: 2 }} // margin bottom
         >
           Logout
+        </Button>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={() => navigate('/warehouse')}
+          sx={{ mb: 2 }} // margin bottom
+        >
+          Go to Warehouses
         </Button>
       </div>
 

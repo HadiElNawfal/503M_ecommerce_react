@@ -18,7 +18,7 @@ const LowStockAlert = ({ lowStockProducts }) => (
                   Only {product.Stock_Level} left
                 </Typography>
                 <Typography variant="body2" color="text.secondary" noWrap>
-                  Location: {product.warehouse_location}
+                  Product ID: {product.Product_ID}
                 </Typography>
               </CardContent>
             </Card>

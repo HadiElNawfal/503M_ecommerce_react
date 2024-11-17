@@ -160,16 +160,16 @@ const Products = () => {
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell>Product ID</TableCell>
-              <TableCell>Product Name</TableCell>
-              <TableCell>Description</TableCell>
-              <TableCell>Price</TableCell>
-              <TableCell>Discount (%)</TableCell>
-              <TableCell>Image</TableCell>
-              <TableCell>Listed</TableCell>
-              <TableCell>Category ID</TableCell>
-              <TableCell>Subcategory ID</TableCell>
-              <TableCell>Actions</TableCell>
+              <TableCell sx={{ fontWeight: 'bold' }}>Product ID</TableCell>
+              <TableCell sx={{ fontWeight: 'bold' }}>Product Name</TableCell>
+              <TableCell sx={{ fontWeight: 'bold' }}>Description</TableCell>
+              <TableCell sx={{ fontWeight: 'bold' }}>Price</TableCell>
+              <TableCell sx={{ fontWeight: 'bold' }}>Discount (%)</TableCell>
+              <TableCell sx={{ fontWeight: 'bold' }}>Image</TableCell>
+              <TableCell sx={{ fontWeight: 'bold' }}>Listed</TableCell>
+              <TableCell sx={{ fontWeight: 'bold' }}>Category ID</TableCell>
+              <TableCell sx={{ fontWeight: 'bold' }}>Subcategory ID</TableCell>
+              <TableCell sx={{ fontWeight: 'bold' }}>Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>

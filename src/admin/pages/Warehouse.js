@@ -2,20 +2,40 @@
 
 import React, { useEffect, useState } from 'react';
 import {
-  Box, Button, Typography, Table, TableHead, TableBody,
-  TableRow, TableCell, Modal, TextField
+  Box,
+  Button,
+  Typography,
+  Table,
+  TableHead,
+  TableBody,
+  TableRow,
+  TableCell,
+  TableContainer,
+  Paper,
+  Modal,
+  TextField,
+  Snackbar,
+  Alert,
+  CircularProgress,
 } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 import axios from '../../axiosConfig';
 import config from '../../config';
 
 const Warehouse = () => {
   const { server } = config;
   const [warehouses, setWarehouses] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [openCreateModal, setOpenCreateModal] = useState(false);
   const [openUpdateModal, setOpenUpdateModal] = useState(false);
   const [selectedWarehouse, setSelectedWarehouse] = useState(null);
   const [managerId, setManagerId] = useState('');
   const [location, setLocation] = useState('');
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [snackbarSeverity, setSnackbarSeverity] = useState('success');
+
+  const navigate = useNavigate();
 
   const handleLogout = async () => {
     try {
@@ -25,6 +45,7 @@ const Warehouse = () => {
       window.location.replace('/login'); // Force navigation
     } catch (error) {
       console.error('Logout error:', error); // Detailed error log
+      showSnackbar('Logout failed. Please try again.', 'error');
     }
   };
 
@@ -35,12 +56,15 @@ const Warehouse = () => {
       setWarehouses(response.data);
     } catch (error) {
       console.error('Error fetching warehouses:', error);
+      showSnackbar('Failed to load warehouses.', 'error');
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
     fetchWarehouses();
-    const intervalId = setInterval(fetchWarehouses, 10000); // 10000 ms = 10 seconds
+    const intervalId = setInterval(fetchWarehouses, 10000); // Refresh every 10 seconds
 
     // Cleanup interval on component unmount
     return () => clearInterval(intervalId);
@@ -68,6 +92,13 @@ const Warehouse = () => {
     setOpenUpdateModal(false);
   };
 
+  // Snackbar Utility Function
+  const showSnackbar = (message, severity) => {
+    setSnackbarMessage(message);
+    setSnackbarSeverity(severity);
+    setSnackbarOpen(true);
+  };
+
   // Create Warehouse
   const handleCreateWarehouse = async () => {
     try {
@@ -77,8 +108,10 @@ const Warehouse = () => {
       });
       fetchWarehouses();
       handleCloseCreateModal();
+      showSnackbar('Warehouse created successfully.', 'success');
     } catch (error) {
       console.error('Error creating warehouse:', error);
+      showSnackbar('Failed to create warehouse.', 'error');
     }
   };
 
@@ -91,8 +124,10 @@ const Warehouse = () => {
       });
       fetchWarehouses();
       handleCloseUpdateModal();
+      showSnackbar('Warehouse updated successfully.', 'success');
     } catch (error) {
       console.error('Error updating warehouse:', error);
+      showSnackbar('Failed to update warehouse.', 'error');
     }
   };
 
@@ -109,19 +144,52 @@ const Warehouse = () => {
     p: 4,
   };
 
+  if (loading) {
+    return (
+      <Box sx={{ textAlign: 'center', marginTop: '50px' }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
   return (
-    <Box sx={{ padding: '20px', marginRight: '450px', marginTop: '50px' }}>
+    <Box sx={{ padding: '20px' }}>
+      {/* Snackbar for success/error messages */}
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={6000}
+        onClose={() => setSnackbarOpen(false)}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      >
+        <Alert
+          onClose={() => setSnackbarOpen(false)}
+          severity={snackbarSeverity}
+          sx={{ width: '100%' }}
+        >
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
+
+      {/* Header Section */}
       <Typography variant="h4" gutterBottom>
-        Warehouses
+        Warehouse Management
       </Typography>
       <div>
         <Button
           variant="contained"
           color="secondary"
           onClick={handleLogout}
-          sx={{ mb: 2 }} // margin bottom
+          sx={{ mb: 2 }}
         >
           Logout
+        </Button>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={() => navigate('/inventory')}
+          sx={{ mb: 2, ml: 2 }} // Added margin left to move it to the right
+        >
+          Go to Inventory
         </Button>
       </div>
 
@@ -136,34 +204,46 @@ const Warehouse = () => {
       </Button>
 
       {/* Warehouses Table */}
-      <Table>
-        <TableHead>
-          <TableRow>
-            <TableCell>Warehouse ID</TableCell>
-            <TableCell>Manager ID</TableCell>
-            <TableCell>Location</TableCell>
-            <TableCell>Actions</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {warehouses.map((warehouse) => (
-            <TableRow key={warehouse.Warehouse_ID}>
-              <TableCell>{warehouse.Warehouse_ID}</TableCell>
-              <TableCell>{warehouse.Manager_ID}</TableCell>
-              <TableCell>{warehouse.Location}</TableCell>
-              <TableCell>
-                <Button
-                  variant="outlined"
-                  color="primary"
-                  onClick={() => handleOpenUpdateModal(warehouse)}
-                >
-                  Update
-                </Button>
-              </TableCell>
+      <TableContainer component={Paper}>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell sx={{ fontWeight: 'bold' }}>Warehouse ID</TableCell>
+              <TableCell sx={{ fontWeight: 'bold' }}>Manager ID</TableCell>
+              <TableCell sx={{ fontWeight: 'bold' }}>Location</TableCell>
+              <TableCell sx={{ fontWeight: 'bold' }}>Actions</TableCell>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+          </TableHead>
+          <TableBody>
+            {warehouses.length > 0 ? (
+              warehouses.map((warehouse) => (
+                <TableRow key={warehouse.Warehouse_ID}>
+                  <TableCell>{warehouse.Warehouse_ID}</TableCell>
+                  <TableCell>{warehouse.Manager_ID}</TableCell>
+                  <TableCell>{warehouse.Location}</TableCell>
+                  <TableCell>
+                    <Button
+                      variant="outlined"
+                      color="primary"
+                      onClick={() => handleOpenUpdateModal(warehouse)}
+                      sx={{ mr: 1 }} // Added margin right for spacing
+                    >
+                      Update
+                    </Button>
+                    {/* You can add more action buttons here if needed */}
+                  </TableCell>
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell colSpan={4} align="center">
+                  No warehouses available
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </TableContainer>
 
       {/* Create Warehouse Modal */}
       <Modal

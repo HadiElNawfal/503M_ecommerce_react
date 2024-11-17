@@ -9,6 +9,8 @@ import Orders from './admin/pages/Orders';
 import Returns from './admin/pages/Returns';
 import Products from './admin/pages/Products';
 import Warehouse from './admin/pages/Warehouse'; 
+import PasswordReset from './admin/pages/PasswordReset';
+import ResetPassword from './admin/pages/ResetPassword';
 
 const ForceRefreshRedirect = ({ to }) => {
   useEffect(() => {
@@ -99,6 +101,10 @@ function App() {
             )
           }
         />
+        
+        {/* Password Reset Routes */}
+        <Route path="/password-reset" element={<PasswordReset />} />
+        <Route path="/reset-password/:token" element={<ResetPassword />} />
 
         {/* Admin Routes */}
         {isAuthenticated && userRoles.includes('Admin') && adminUrl && (
@@ -113,9 +119,10 @@ function App() {
 
         {/* Inventory Manager Routes */}
         {isAuthenticated && userRoles.includes('Inventory Manager') && (
-    
+          <>
             <Route path="/inventory" element={<Inventory />} />
-         
+            <Route path="/warehouse" element={<Warehouse />} /> {/* Allow Inventory Manager to access /warehouse */}
+          </>
         )}
 
         {/* Product Manager Routes */}
@@ -125,7 +132,10 @@ function App() {
 
         {/* Order Manager Routes */}
         {isAuthenticated && userRoles.includes('Order Manager') && (
-          <Route path="/orders" element={<Orders />} />
+          <>
+            <Route path="/orders" element={<Orders />} />
+            <Route path="/returns" element={<Returns />} /> {/* Allow Order Manager to access /returns */}
+          </>
         )}
 
         {/* Fallback Route */}

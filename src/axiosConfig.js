@@ -46,9 +46,9 @@ instance.interceptors.response.use(
   (response) => response,
   (error) => {
     const currentPath = window.location.pathname;
-    if (error.response && error.response.status === 401 && currentPath !== '/login') {
+    if (error.response && error.response.status === 401 && currentPath !== '/login' && !currentPath.startsWith('/reset-password')) {
       window.location.href = '/login';
-    } else if (error.response && error.response.status === 403) {
+    } else if (error.response && error.response.status === 403 && currentPath !== '/login' && !currentPath.startsWith('/reset-password')) {
       // Redirect to Not Authorized page
       window.location.href = '/login';
     }
