@@ -122,7 +122,7 @@ const Products = () => {
   };
 
   return (
-    <Box sx={{ padding: '20px', marginLeft: '250px' }}>
+    <Box sx={{ padding: '20px', marginLeft: '250px', }}>
       <Typography variant="h4" gutterBottom>Product Management</Typography>
 
       {/* Logout Button */}

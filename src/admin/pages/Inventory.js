@@ -31,7 +31,11 @@ const Inventory = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get(`/api/view_inventory`);
+        const response = await axios.get(`/api/view_inventory`)
+        .then(response => {
+          setInventoryData(response.data.inventory); // Access the 'inventory' key
+        })
+        ;
         const data = response.data;
         console.log(data);
 
