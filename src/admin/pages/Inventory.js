@@ -50,10 +50,12 @@ const Inventory = () => {
 
         // Fetch inventory reports
         const reportResponse = await axios.get(`/api/inventory/turnover`);
-        const reportData = reportResponse.data;
-        setTurnoverData(reportData.turnoverData);
-        setPopularProductsData(reportData.popularProductsData);
-        setDemandPredictionData(reportData.demandPredictionData);
+        console.log(reportResponse.data)
+        setTurnoverData(reportResponse.data);
+        console.log(reportResponse.turnoverData)
+        setPopularProductsData(reportResponse.popularProductsData);
+        setDemandPredictionData(reportResponse.demandPredictionData);
+        console.log(reportResponse.turnoverData)
       } catch (error) {
         console.error('Error fetching inventory data:', error);
       }
