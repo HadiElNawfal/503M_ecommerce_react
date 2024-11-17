@@ -34,7 +34,6 @@ const LoginForm = ({ onLoginSuccess }) => {
         onLoginSuccess();
       }
     } catch (error) {
-      console.error('Login failed', error);
       setError(error.response?.data?.error)
     }
   };

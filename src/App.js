@@ -25,7 +25,7 @@ const logout = async () => {
   try {
     await axios.post('/api/logout'); // Call the logout API endpoint using axios
   } catch (error) {
-    console.error('Logout failed:', error);
+    console.error('Logout failed');
     // Optional: Handle specific logout errors if necessary
   } finally {
     localStorage.removeItem('token'); // Remove the token from localStorage
@@ -49,7 +49,7 @@ function App() {
       try {
         await axios.get('/api/get-csrf-token');
       } catch (error) {
-        console.error('Failed to fetch CSRF token:', error);
+        console.error('Failed to fetch CSRF token');
       }
     };
 
@@ -79,7 +79,7 @@ function App() {
           setIsAuthenticated(false);
         }
       } catch (error) {
-        console.error('Authentication check failed', error);
+        console.error('Authentication check failed');
         setIsAuthenticated(false);
       } finally {
         setIsLoading(false);

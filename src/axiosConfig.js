@@ -11,8 +11,7 @@ const logout = async () => {
   try {
     await instance.post('/api/logout'); // Call the logout API endpoint
   } catch (error) {
-    console.error('Logout failed:', error);
-    // Optional: Handle specific logout errors if necessary
+    console.error('Logout failed');
   } finally {
     localStorage.removeItem('token'); // Remove the token from localStorage
     delete instance.defaults.headers.common['Authorization']; // Remove the Authorization header

@@ -55,7 +55,6 @@ const ResetPassword = () => {
       setMessage(response.data.message);
       setOpenSnackbar(true);
     } catch (error) {
-      console.error('Password reset failed', error);
       setError(error.response?.data?.error || 'An error occurred. Please try again.');
       setOpenSnackbar(true);
     } finally {
