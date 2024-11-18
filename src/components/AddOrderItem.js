@@ -20,12 +20,12 @@ const AddOrderItem = ({ open, handleClose, orderId, refreshOrders }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  // Fetch products from the backend
+  //fetch products from the backend
   useEffect(() => {
     const fetchProducts = async () => {
       setLoading(true);
       try {
-        const response = await axios.get('/api/view_products'); // Ensure this endpoint is correct
+        const response = await axios.get('/api/view_products');
         setProductOptions(response.data);
       } catch (err) {
         console.error('Error fetching product options:', err);
@@ -41,17 +41,17 @@ const AddOrderItem = ({ open, handleClose, orderId, refreshOrders }) => {
   const handleProductChange = (e) => {
     const productId = e.target.value;
     setSelectedProductId(productId);
-    setQuantity(''); // Reset quantity when changing product
+    setQuantity('');
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
 
-    console.log('Order ID:', orderId); // Debugging statement
+    console.log('Order ID:', orderId);
 
     try {
-      // Fetch the selected product to get the price
+      //fetch the selected product to get the price
       const selectedProduct = productOptions.find(
         (product) => product.Product_ID === selectedProductId
       );
@@ -64,14 +64,14 @@ const AddOrderItem = ({ open, handleClose, orderId, refreshOrders }) => {
       const price = selectedProduct.Price;
 
       await axios.post('/api/create_order_item', {
-        Order_ID: orderId, // Ensure orderId is correctly passed
+        Order_ID: orderId, //ensure orderId is correctly passed
         Product_ID: selectedProductId,
         Quantity: parseInt(quantity, 10),
         Price: price,
       });
 
-      refreshOrders(); // Refresh the orders in the parent component
-      handleClose(); // Close the modal
+      refreshOrders(); //refresh the orders in the parent component
+      handleClose(); //close the modal
       setSelectedProductId('');
       setQuantity('');
     } catch (err) {
@@ -167,7 +167,7 @@ const AddOrderItem = ({ open, handleClose, orderId, refreshOrders }) => {
 AddOrderItem.propTypes = {
   open: PropTypes.bool.isRequired,
   handleClose: PropTypes.func.isRequired,
-  orderId: PropTypes.number.isRequired, // Assuming Order_ID is a number
+  orderId: PropTypes.number.isRequired,
   refreshOrders: PropTypes.func.isRequired,
 };
 

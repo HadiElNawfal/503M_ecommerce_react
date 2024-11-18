@@ -11,19 +11,19 @@ const InventoryReports = ({ turnoverData, popularProductsData, demandPredictionD
     let pageHeight = pdf.internal.pageSize.height;
   const getCurrentDate = () => {
     const today = new Date();
-    const options = { year: 'numeric', month: 'long', day: 'numeric' }; // Example: "December 31, 2024"
+    const options = { year: 'numeric', month: 'long', day: 'numeric' };
     return today.toLocaleDateString(undefined, options);
     };
     
 
-    // Page number
+    //page number
     const addPageNumber = (pageNum) => {
       pdf.setFontSize(10);
       pdf.setTextColor('#999');
       pdf.text(`Page ${pageNum}`, pdf.internal.pageSize.width - 20, pageHeight - 10);
     };
 
-    // Cover Page
+    //cover Page
     pdf.setFontSize(26);
     pdf.setTextColor('#4A90E2');
     pdf.text("Inventory Management Report", 105, 50, null, null, 'center');
@@ -66,7 +66,7 @@ const InventoryReports = ({ turnoverData, popularProductsData, demandPredictionD
     addPageNumber(1);
     pdf.addPage();
 
-    // Function to create chart image with enhanced styling and vibrant colors
+    //function to create chart image with enhanced styling and vibrant colors
     const createChartImage = async (data, type = 'bar', title = '', bgColor) => {
       return new Promise((resolve) => {
         const canvas = document.createElement('canvas');

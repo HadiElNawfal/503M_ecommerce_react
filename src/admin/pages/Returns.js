@@ -37,7 +37,7 @@ const Returns = () => {
       await axios.post('/api/logout');
       localStorage.removeItem('token');
       delete axios.defaults.headers.common['Authorization'];
-      window.location.replace('/login'); // Force navigation
+      window.location.replace('/login');
     } catch (error) {
       console.error('Logout error:', error);
     }
@@ -56,14 +56,14 @@ const Returns = () => {
 
   useEffect(() => {
     fetchReturns();
-    const intervalId = setInterval(fetchReturns, 10000); // Refresh every 10 seconds
+    const intervalId = setInterval(fetchReturns, 10000); //refresh every 10 seconds
 
     return () => clearInterval(intervalId);
   }, [server]);
 
   const handleStatusChange = async (Return_ID, newStatus) => {
     try {
-      // Update the status locally for immediate UI feedback
+      //update the status locally for immediate UI feedback
       const updatedReturns = returns.map((returnOrder) =>
         returnOrder.Return_ID === Return_ID
           ? { ...returnOrder, Status: newStatus }
@@ -71,17 +71,17 @@ const Returns = () => {
       );
       setReturns(updatedReturns);
 
-      // Send the update request to the backend
+      
       await axios.put(`/api/update_return/${Return_ID}`, {
         Status: newStatus,
       });
 
-      // Show a success message
+      
       setSnackbarMessage(`Return ${Return_ID} status updated to ${newStatus}`);
       setSnackbarSeverity('success');
       setSnackbarOpen(true);
     } catch (error) {
-      // Handle errors and show an error message
+      
       console.error(`Failed to update status for return ${Return_ID}:`, error);
       setSnackbarMessage(`Failed to update status for return ${Return_ID}`);
       setSnackbarSeverity('error');

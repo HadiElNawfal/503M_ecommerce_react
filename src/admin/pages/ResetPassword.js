@@ -20,7 +20,7 @@ const Container = styled(Box)(({ theme }) => ({
   justifyContent: 'center',
   alignItems: 'center',
   minHeight: '100vh',
-  backgroundColor: "primary", // Use theme's background.default
+  backgroundColor: "primary", //use theme's background.default
   padding: '16px',
 }));
 
@@ -32,7 +32,7 @@ const Card = styled(Paper)(({ theme }) => ({
   boxShadow: 'rgba(0, 0, 0, 0.1) 0px 4px 12px',
 }));
 
-// Alert Component for Snackbar
+//alert Component for Snackbar
 const AlertComponent = React.forwardRef(function Alert(props, ref) {
   return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
 });
@@ -89,7 +89,7 @@ const ResetPassword = () => {
           <Button
             type="submit"
             variant="contained"
-            color="secondary" // Use primary color
+            color="secondary"
             fullWidth
             disabled={loading}
             startIcon={loading && <CircularProgress size={20} />}

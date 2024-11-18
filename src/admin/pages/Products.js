@@ -16,27 +16,27 @@ import {
 import AddProduct from '../../components/AddProduct';
 import UpdateProduct from '../../components/UpdateProduct';
 import RemoveProduct from '../../components/RemoveProduct';
-import axios from '../../axiosConfig'; // Import the configured axios instance
+import axios from '../../axiosConfig';
 import Papa from 'papaparse';
 
 const Products = () => {
-  // State for managing products and modals
-  const [products, setProducts] = useState([]); // Initialize as empty array to prevent map errors
+  //State for managing products and modals
+  const [products, setProducts] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [isUpdateOpen, setIsUpdateOpen] = useState(false);
   const [isRemoveOpen, setIsRemoveOpen] = useState(false);
   const [csvFile, setCsvFile] = useState(null);
 
-  // Handle user logout
+  //Handle user logout
   const handleLogout = async () => {
     try {
       await axios.post('/api/logout');
       localStorage.removeItem('token');
       delete axios.defaults.headers.common['Authorization'];
-      window.location.replace('/login'); // Force navigation
+      window.location.replace('/login');
     } catch (error) {
-      console.error('Logout error:', error); // Detailed error log
+      console.error('Logout error:', error);
     }
   };
 
@@ -44,29 +44,29 @@ const Products = () => {
   const fetchData = useCallback(async () => {
     try {
       const response = await axios.get('/api/view_products');
-      console.log('API Response:', response.data); // Log the response for debugging
+      console.log('API Response:', response.data); //log the response for debugging
 
       // Check if the response is an array
       if (Array.isArray(response.data)) {
         setProducts(response.data);
       } else if (response.data && Array.isArray(response.data.products)) {
-        // Fallback if the response has a 'products' key
+        //fallback if the response has a 'products' key
         setProducts(response.data.products);
       } else {
         console.error('Unexpected API response structure:', response.data);
-        setProducts([]); // Fallback to empty array
+        setProducts([]);
       }
     } catch (error) {
       console.error('Error fetching products:', error);
-      setProducts([]); // Fallback to empty array on error
+      setProducts([]);
     }
   }, []);
 
-  // Fetch products on component mount and set up interval for refreshing
+  //fetch products on component mount and set up interval for refreshing
   useEffect(() => {
     fetchData();
-    const intervalId = setInterval(fetchData, 10000); // Refresh every 10 seconds
-    return () => clearInterval(intervalId); // Cleanup on unmount
+    const intervalId = setInterval(fetchData, 10000);
+    return () => clearInterval(intervalId); 
   }, [fetchData]);
 
   // Modal handlers
@@ -107,7 +107,7 @@ const Products = () => {
           if (response.status === 200) {
             fetchData();
             console.log('Bulk upload successful');
-            setCsvFile(null); // Reset file input
+            setCsvFile(null); //reset file input
           } else {
             console.error('Bulk upload failed');
           }
@@ -131,7 +131,7 @@ const Products = () => {
           variant="contained" 
           color="secondary" 
           onClick={handleLogout}
-          sx={{ mb: 2 }} // margin bottom
+          sx={{ mb: 2 }}
         >
           Logout
         </Button>

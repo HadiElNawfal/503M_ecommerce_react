@@ -22,10 +22,10 @@ const Sidebar = ({ onSelect }) => {
         backgroundColor: "#1976d2",
         height: "100vh", // full height
         color: "white",
-        position: "fixed", // Ensure the sidebar stays fixed to the left
-        top: 0, // Align to the top of the page
-        left: 0, // Align to the left of the page
-        zIndex: 1, // Ensure the sidebar stays on top of other elements
+        position: "fixed", //ensuring the sidebar stays fixed to the left
+        top: 0,
+        left: 0,
+        zIndex: 1,
       }}
     >
       <List>

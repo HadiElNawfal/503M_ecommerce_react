@@ -6,8 +6,8 @@ import axios from '../axiosConfig';
 const UpdateProduct = ({ product, onClose, onUpdate }) => {
   //const { server } = config;
 
-  // State for each field with initial values from the product
-  const [errorMessage, setErrorMessage] = useState(''); // State to store error messages
+  
+  const [errorMessage, setErrorMessage] = useState('');
   const [productName, setProductName] = useState(product.Name);
   const [description, setDescription] = useState(product.Description);
   const [price, setPrice] = useState(product.Price);
@@ -20,7 +20,7 @@ const UpdateProduct = ({ product, onClose, onUpdate }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Validate the inputs
+    
     if (price < 0) {
       setErrorMessage('Price cannot be negative.');
       return;
@@ -30,7 +30,7 @@ const UpdateProduct = ({ product, onClose, onUpdate }) => {
       return;
     }
 
-    // Prepare the data object with only the updated fields
+    
     const updatedFields = {};
     if (productName !== product.Name) updatedFields.Name = productName;
     if (description !== product.Description) updatedFields.Description = description;
@@ -44,7 +44,7 @@ const UpdateProduct = ({ product, onClose, onUpdate }) => {
     try {
       const response = await axios.put(
         `/api/update_product/${product.Product_ID}`,
-        updatedFields, // Axios automatically stringifies the body as JSON
+        updatedFields,
         {
           headers: {
             'Content-Type': 'application/json',
@@ -57,8 +57,8 @@ const UpdateProduct = ({ product, onClose, onUpdate }) => {
         console.log(errorData);
         setErrorMessage(errorData.error || 'An error occurred while updating the product.');
       } else {
-        onUpdate(); // Refresh the product list in the parent component
-        onClose();  // Close the modal
+        onUpdate(); 
+        onClose(); 
       }
     } catch (error) {
       console.error('Error updating product:', error);
@@ -70,8 +70,8 @@ const UpdateProduct = ({ product, onClose, onUpdate }) => {
     <Box
       sx={{
         p: 3,
-        maxHeight: '80vh', // Limits modal height to 80% of the viewport height
-        overflowY: 'auto', // Enables vertical scrolling if content exceeds the modal height
+        maxHeight: '80vh', 
+        overflowY: 'auto', 
       }}
     >
       <Typography variant="h6" gutterBottom>

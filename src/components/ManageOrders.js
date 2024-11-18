@@ -17,7 +17,6 @@ const ManageOrders = ({ orders, onStatusChange }) => {
     doc.text(`Invoice number: ${order.order_id}`, 105, 30, null, null, 'center');
     doc.text(`Date of issue: ${issueDate}`, 105, 40, null, null, 'center');
 
-    // Company Information
     doc.setFontSize(10);
     doc.text('Gaming Console Store', 14, 70);
     doc.text('Bliss Street', 14, 75);
@@ -25,14 +24,13 @@ const ManageOrders = ({ orders, onStatusChange }) => {
     doc.text('Lebanon', 14, 90);
     doc.text('support@GSC.com', 14, 95);
 
-    // Bill To
     doc.text('Bill to', 150, 70);
     doc.text(order.customer_name, 150, 75);
-    doc.text(order.address || 'Address not provided', 150, 80); // Use address from backend, if available
-    doc.text(`${order.city || ''}, ${order.postal_code || ''}`, 150, 85); // Use city and postal code from backend
-    doc.text(order.country || 'Country not provided', 150, 90); // Use country from backend
-    doc.text(order.email || 'Email not provided', 150, 95); // Use email from backend
-    // Table of items
+    doc.text(order.address || 'Address not provided', 150, 80); 
+    doc.text(`${order.city || ''}, ${order.postal_code || ''}`, 150, 85);
+    doc.text(order.country || 'Country not provided', 150, 90);
+    doc.text(order.email || 'Email not provided', 150, 95);
+
     doc.autoTable({
       startY: 105,
       head: [['Description', 'Qty', 'Unit price', 'Amount']],
@@ -42,13 +40,12 @@ const ManageOrders = ({ orders, onStatusChange }) => {
       ],
     });
 
-    // Subtotal, Total, Amount Due
     const finalY = doc.lastAutoTable.finalY + 10;
     doc.text(`Subtotal: $${order.total_price.toFixed(2)}`, 14, finalY);
     doc.text(`Total: $${order.total_price.toFixed(2)}`, 14, finalY + 5);
     doc.text(`Amount due: $${order.total_price.toFixed(2)} USD`, 14, finalY + 10);
 
-    // Save the PDF
+    //Save the PDF
     doc.save(`Invoice-${order.order_id}.pdf`);
   };
 

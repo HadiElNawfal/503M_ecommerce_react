@@ -24,26 +24,26 @@ const Inventory = () => {
       await axios.post('/api/logout');
       localStorage.removeItem('token');
       delete axios.defaults.headers.common['Authorization'];
-      window.location.replace('/login'); // Force navigation
+      window.location.replace('/login'); 
     } catch (error) {
-      console.error('Logout error:', error); // Detailed error log
+      console.error('Logout error:', error); 
     }
   };
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Make the GET request without using .then()
+       
         const response = await axios.get(`/api/view_inventory`);
         const data = response.data;
         console.log('Inventory Response:', data);
 
-        // Validate that data.inventory is an array
+        //Validate that data.inventory is an array
         if (Array.isArray(data.inventory)) {
           setInventoryData(data.inventory);
           const lowStock = data.inventory.filter(item => item.Stock_Level < 10);
           setLowStockProducts(lowStock);
-          console.log('Low Stock Products:', lowStock); // Optional: For debugging
+          console.log('Low Stock Products:', lowStock);
         } else {
           console.error('Expected an array but got:', data.inventory);
         }
@@ -62,21 +62,21 @@ const Inventory = () => {
     };
 
     fetchData();
-    const intervalId = setInterval(fetchData, 10000); // 10 seconds
+    const intervalId = setInterval(fetchData, 10000); //10 seconds
 
-    // Cleanup interval on component unmount
+    //Cleanup interval on component unmount
     return () => clearInterval(intervalId);
   }, [server]);
 
   return (
-    <Box sx={{ padding: '20px', marginRight: '450px', marginTop: '70px' }}> {/* Fixed position for consistent alignment */}
+    <Box sx={{ padding: '20px', marginRight: '450px', marginTop: '70px' }}>
       <Typography variant="h4" gutterBottom>Inventory Management</Typography>
       <div>
         <Button
           variant="contained"
           color="secondary"
           onClick={handleLogout}
-          sx={{ mb: 2 }} // margin bottom
+          sx={{ mb: 2 }} 
         >
           Logout
         </Button>
@@ -84,7 +84,7 @@ const Inventory = () => {
           variant="contained"
           color="primary"
           onClick={() => navigate('/warehouse')}
-          sx={{ mb: 2 }} // margin bottom
+          sx={{ mb: 2 }} 
         >
           Go to Warehouses
         </Button>

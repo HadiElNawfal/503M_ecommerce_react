@@ -6,7 +6,7 @@ import axios from '../axiosConfig';
 const AddProduct = ({ onClose, onAdd }) => {
   //const { server } = config;
 
-  // State for form fields
+  
   const [name, setName] = useState('');
   const [price, setPrice] = useState('');
   const [description, setDescription] = useState('');
@@ -40,12 +40,12 @@ const AddProduct = ({ onClose, onAdd }) => {
     };
 
     try {
-      // Axios interceptor will automatically include the CSRF token
+      //axios interceptor will automatically include the CSRF token
       const response = await axios.post('/api/add_product', newProduct);
 
       if (response.status === 201) {
-        onAdd(response.data.product); // Ensure your backend returns the added product
-        onClose(); // Close the modal
+        onAdd(response.data.product);
+        onClose(); //close the modal
       } else {
         setError(response.data.error || 'Failed to add product');
       }

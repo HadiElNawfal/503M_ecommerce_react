@@ -13,13 +13,13 @@ import { styled } from '@mui/system';
 import axios from '../../axiosConfig';
 import MuiAlert from '@mui/material/Alert';
 
-// Styled Components
+//Styled Components
 const Container = styled(Box)(({ theme }) => ({
   display: 'flex',
   justifyContent: 'center',
   alignItems: 'center',
   minHeight: '100vh',
-  backgroundColor: 'secondary', // Updated to use background.default
+  backgroundColor: 'secondary',
   padding: '16px',
 }));
 
@@ -31,7 +31,7 @@ const Card = styled(Paper)(({ theme }) => ({
   boxShadow: 'rgba(0, 0, 0, 0.1) 0px 4px 12px',
 }));
 
-// Alert Component for Snackbar
+//Alert Component for Snackbar
 const AlertComponent = React.forwardRef(function Alert(props, ref) {
   return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
 });

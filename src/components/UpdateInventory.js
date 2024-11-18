@@ -23,16 +23,16 @@ const UpdateInventory = ({ open, handleClose, inventoryData, refreshInventory })
         return;
       }
 
-      // Send PUT request to backend
+    
       await axios.put(`/api/edit_inventory_by_id`, {
         Product_ID: selectedProductId,
         to_be_added: adjustmentAmount
       });
-      // Close the modal and refresh the inventory data
+      
       handleClose();
       refreshInventory();
 
-      // Reset form fields
+      
       setSelectedProductId('');
       setAdjustmentAmount('');
     } catch (error) {

@@ -7,17 +7,16 @@ const RemoveProduct = ({ product, onClose, onRemove }) => {
   const { server } = config;
 
   const handleRemoveProduct = async () => {
-    // Check if product and product_id are defined
     if (!product || !product.Product_ID) {
       console.error("Product ID is missing or undefined.");
-      return; // Exit if product_id is not available
+      return; 
     }
 
     try {
       await axios.delete(`${server}/api/delete_product/${product.Product_ID}`);
       console.log(`Product ${product.Product_ID} deleted successfully`);
-      onRemove(); // Trigger parent component to refresh the product list
-      onClose(); // Close the modal
+      onRemove();
+      onClose();
     } catch (err) {
       console.error('Error deleting product:', err);
     }
@@ -43,7 +42,7 @@ const RemoveProduct = ({ product, onClose, onRemove }) => {
           variant="contained"
           color="error"
           onClick={handleRemoveProduct}
-          disabled={!product || !product.Product_ID} // Disable if product or product_id is missing
+          disabled={!product || !product.Product_ID}
           sx={{
             backgroundColor: 'red',
             '&:hover': {

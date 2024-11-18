@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Button, Box, Typography } from '@mui/material';
 import Sidebar from '../../components/Sidebar';
 import DashboardOverview from '../../components/DashboardOverview';
-import BarChart from '../../components/BarChart'; // Import BarChart component
-import Inventory from './Inventory'; // Import your Inventory component
+import BarChart from '../../components/BarChart';
+import Inventory from './Inventory';
 import Orders from './Orders';
 import Returns from './Returns';
 import Products from './Products';
@@ -17,9 +17,9 @@ const AdminDashboard = () => {
       await axios.post('/api/logout');
       localStorage.removeItem('token');
       delete axios.defaults.headers.common['Authorization'];
-      window.location.replace('/login'); // Force navigation
+      window.location.replace('/login'); //Force navigation
     } catch (error) {
-      console.error('Logout error:', error); // Detailed error log
+      console.error('Logout error:', error); //Detailed error log
     }
   };
   const { server } = config;
@@ -35,7 +35,7 @@ const AdminDashboard = () => {
     // Fetch data from backend when component mounts
     const fetchData = async () => {
       try {
-        const response = await axios.get(`/api/dashboard`); // Replace with your actual backend endpoint
+        const response = await axios.get(`/api/dashboard`);
         setDashboardData(response.data);
       } catch (error) {
         console.error("Error fetching dashboard data:", error);
@@ -44,9 +44,9 @@ const AdminDashboard = () => {
     
 
     fetchData();
-    const intervalId = setInterval(fetchData, 5000); // 10000 ms = 10 seconds
+    const intervalId = setInterval(fetchData, 5000); //5000 ms = 10 seconds
 
-    // Cleanup interval on component unmount
+    //Cleanup interval on component unmount
     return () => clearInterval(intervalId);
   }, [server]);
 
@@ -71,7 +71,7 @@ const AdminDashboard = () => {
               variant="contained" 
               color="secondary" 
               onClick={handleLogout}
-              sx={{ mb: 2 }} // margin bottom
+              sx={{ mb: 2 }} 
             >
               Logout
             </Button>

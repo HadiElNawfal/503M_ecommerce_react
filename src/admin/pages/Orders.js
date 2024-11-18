@@ -22,7 +22,7 @@ import 'jspdf-autotable';
 import config from '../../config';
 import { useNavigate } from 'react-router-dom';
 import axios from '../../axiosConfig';
-import AddOrderItem from '../../components/AddOrderItem'; // *** Highlighted: Import AddOrderItem component ***
+import AddOrderItem from '../../components/AddOrderItem';
 
 const Orders = () => {
   const { server } = config;
@@ -31,7 +31,7 @@ const Orders = () => {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [snackbarSeverity, setSnackbarSeverity] = useState('success');
-  const [selectedOrder, setSelectedOrder] = useState(null); // *** Highlighted: State to track selected order for modal ***
+  const [selectedOrder, setSelectedOrder] = useState(null); 
 
   const navigate = useNavigate();
   
@@ -40,9 +40,9 @@ const Orders = () => {
       await axios.post('/api/logout');
       localStorage.removeItem('token');
       delete axios.defaults.headers.common['Authorization'];
-      window.location.replace('/login'); // Force navigation
+      window.location.replace('/login');
     } catch (error) {
-      console.error('Logout error:', error); // Detailed error log
+      console.error('Logout error:', error);
     }
   };
 
@@ -60,7 +60,7 @@ const Orders = () => {
 
   useEffect(() => {
     fetchData();
-    const intervalId = setInterval(fetchData, 10000); // 10 seconds
+    const intervalId = setInterval(fetchData, 10000); //10 seconds
 
     return () => clearInterval(intervalId);
   }, [server]);

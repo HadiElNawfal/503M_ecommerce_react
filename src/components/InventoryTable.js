@@ -17,7 +17,7 @@ const InventoryTable = ({ data, refreshInventory }) => {
   const [selectedInventory, setSelectedInventory] = useState([]);
 
   const handleOpenUpdateModal = (inventory) => {
-    setSelectedInventory([inventory]); // Set the selected product in the modal
+    setSelectedInventory([inventory]); //set the selected product in the modal
     setOpenUpdateModal(true);
   };
 

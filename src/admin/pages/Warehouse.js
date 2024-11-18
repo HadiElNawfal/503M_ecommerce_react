@@ -42,9 +42,9 @@ const Warehouse = () => {
       await axios.post('/api/logout');
       localStorage.removeItem('token');
       delete axios.defaults.headers.common['Authorization'];
-      window.location.replace('/login'); // Force navigation
+      window.location.replace('/login');
     } catch (error) {
-      console.error('Logout error:', error); // Detailed error log
+      console.error('Logout error:', error);
       showSnackbar('Logout failed. Please try again.', 'error');
     }
   };
@@ -64,13 +64,13 @@ const Warehouse = () => {
 
   useEffect(() => {
     fetchWarehouses();
-    const intervalId = setInterval(fetchWarehouses, 10000); // Refresh every 10 seconds
+    const intervalId = setInterval(fetchWarehouses, 10000); //refresh every 10 seconds
 
-    // Cleanup interval on component unmount
+    //cleanup interval on component unmount
     return () => clearInterval(intervalId);
   }, [server]);
 
-  // Handlers for Modals
+  //handlers for Modals
   const handleOpenCreateModal = () => {
     setManagerId('');
     setLocation('');
@@ -92,14 +92,14 @@ const Warehouse = () => {
     setOpenUpdateModal(false);
   };
 
-  // Snackbar Utility Function
+  //snackbar Utility Function
   const showSnackbar = (message, severity) => {
     setSnackbarMessage(message);
     setSnackbarSeverity(severity);
     setSnackbarOpen(true);
   };
 
-  // Create Warehouse
+  //create Warehouse
   const handleCreateWarehouse = async () => {
     try {
       await axios.post('/api/create_warehouse', {
@@ -115,7 +115,7 @@ const Warehouse = () => {
     }
   };
 
-  // Update Warehouse
+  //update Warehouse
   const handleUpdateWarehouse = async () => {
     try {
       await axios.put(`/api/update_warehouse/${selectedWarehouse.Warehouse_ID}`, {
@@ -131,7 +131,6 @@ const Warehouse = () => {
     }
   };
 
-  // Modal Styles
   const modalStyle = {
     position: 'absolute',
     top: '50%',
@@ -187,7 +186,7 @@ const Warehouse = () => {
           variant="contained"
           color="primary"
           onClick={() => navigate('/inventory')}
-          sx={{ mb: 2, ml: 2 }} // Added margin left to move it to the right
+          sx={{ mb: 2, ml: 2 }}
         >
           Go to Inventory
         </Button>
@@ -226,7 +225,7 @@ const Warehouse = () => {
                       variant="outlined"
                       color="primary"
                       onClick={() => handleOpenUpdateModal(warehouse)}
-                      sx={{ mr: 1 }} // Added margin right for spacing
+                      sx={{ mr: 1 }}
                     >
                       Update
                     </Button>
