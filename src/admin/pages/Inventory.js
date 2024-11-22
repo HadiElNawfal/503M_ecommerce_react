@@ -48,14 +48,20 @@ const Inventory = () => {
           console.error('Expected an array but got:', data.inventory);
         }
 
-        // Fetch inventory reports
-        const reportResponse = await axios.get(`/api/inventory/turnover`);
-        console.log(reportResponse.data)
-        setTurnoverData(reportResponse.data);
-        console.log(reportResponse.turnoverData)
-        setPopularProductsData(reportResponse.popularProductsData);
-        setDemandPredictionData(reportResponse.demandPredictionData);
-        console.log(reportResponse.turnoverData)
+        const reportResponse1 = await axios.get(`/api/inventory-turnover`);
+        const reportData1 = await reportResponse1.data;
+        setTurnoverData(reportData1.turnoverData);
+        console.log(reportData1.turnoverData);
+
+        const reportResponse2 = await axios.get(`/api/inventory-popular`);
+        const reportData2 = await reportResponse2.data;
+        setPopularProductsData(reportData2.popularProductsData);
+        console.log(reportData2.popularProductsData);
+
+        const reportResponse3 = await axios.get(`/api/inventory-demands`);
+        const reportData3 = await reportResponse3.data;
+        setDemandPredictionData(reportData3.demandPredictionData);
+        console.log(reportData3.demandPredictionData);
       } catch (error) {
         console.error('Error fetching inventory data:', error);
       }
