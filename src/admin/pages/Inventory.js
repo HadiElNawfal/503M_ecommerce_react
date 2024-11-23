@@ -13,9 +13,9 @@ const Inventory = () => {
   const { server } = config;
   const [inventoryData, setInventoryData] = useState([]);
   const [lowStockProducts, setLowStockProducts] = useState([]);
-  const [turnoverData, setTurnoverData] = useState({ labels: [], values: [] });
-  const [popularProductsData, setPopularProductsData] = useState({ labels: [], values: [] });
-  const [demandPredictionData, setDemandPredictionData] = useState({ labels: [], values: [] });
+  // const [turnoverData, setTurnoverData] = useState({ labels: [], values: [] });
+  // const [popularProductsData, setPopularProductsData] = useState({ labels: [], values: [] });
+  // const [demandPredictionData, setDemandPredictionData] = useState({ labels: [], values: [] });
 
   const navigate = useNavigate();
 
@@ -48,20 +48,20 @@ const Inventory = () => {
           console.error('Expected an array but got:', data.inventory);
         }
 
-        const reportResponse1 = await axios.get(`/api/inventory-turnover`);
-        const reportData1 = await reportResponse1.data;
-        setTurnoverData(reportData1.turnoverData);
-        console.log(reportData1.turnoverData);
+        // const reportResponse1 = await axios.get(`/api/inventory-turnover`);
+        // const reportData1 = await reportResponse1.data;
+        // setTurnoverData(reportData1.turnoverData);
+        // console.log(reportData1.turnoverData);
 
-        const reportResponse2 = await axios.get(`/api/inventory-popular`);
-        const reportData2 = await reportResponse2.data;
-        setPopularProductsData(reportData2.popularProductsData);
-        console.log(reportData2.popularProductsData);
+        // const reportResponse2 = await axios.get(`/api/inventory-popular`);
+        // const reportData2 = await reportResponse2.data;
+        // setPopularProductsData(reportData2.popularProductsData);
+        // console.log(reportData2.popularProductsData);
 
-        const reportResponse3 = await axios.get(`/api/inventory-demands`);
-        const reportData3 = await reportResponse3.data;
-        setDemandPredictionData(reportData3.demandPredictionData);
-        console.log(reportData3.demandPredictionData);
+        // const reportResponse3 = await axios.get(`/api/inventory-demands`);
+        // const reportData3 = await reportResponse3.data;
+        // setDemandPredictionData(reportData3.demandPredictionData);
+        // console.log(reportData3.demandPredictionData);
       } catch (error) {
         console.error('Error fetching inventory data:', error);
       }
@@ -101,11 +101,7 @@ const Inventory = () => {
 
       {/* Inventory Table and Reports */}
       <InventoryTable data={inventoryData} />
-      <InventoryReports
-        turnoverData={turnoverData}
-        popularProductsData={popularProductsData}
-        demandPredictionData={demandPredictionData}
-      />
+      <InventoryReports/>
     </Box>
   );
 };
