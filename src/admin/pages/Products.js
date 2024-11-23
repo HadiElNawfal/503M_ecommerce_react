@@ -1,4 +1,6 @@
-import React, { useState, useEffect, useCallback } from 'react';
+// src/pages/Products.js
+
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
   Box,
   Typography,
@@ -11,24 +13,28 @@ import {
   TableHead,
   TableRow,
   Paper,
-  TextField
+  TextField,
+  Alert,
 } from '@mui/material';
 import AddProduct from '../../components/AddProduct';
 import UpdateProduct from '../../components/UpdateProduct';
 import RemoveProduct from '../../components/RemoveProduct';
-import axios from '../../axiosConfig';
-import Papa from 'papaparse';
+import axios from '../../axiosConfig'; // Ensure the correct import path
 
 const Products = () => {
-  //State for managing products and modals
+  // State for managing products and modals
   const [products, setProducts] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [isUpdateOpen, setIsUpdateOpen] = useState(false);
   const [isRemoveOpen, setIsRemoveOpen] = useState(false);
   const [csvFile, setCsvFile] = useState(null);
+  const [uploadStatus, setUploadStatus] = useState(null); // To display success/error messages
+  const [isUploading, setIsUploading] = useState(false); // To manage upload button state
 
-  //Handle user logout
+  const fileInputRef = useRef(null); // Ref for the file input
+
+  // Handle user logout
   const handleLogout = async () => {
     try {
       await axios.post('/api/logout');
@@ -44,13 +50,13 @@ const Products = () => {
   const fetchData = useCallback(async () => {
     try {
       const response = await axios.get('/api/view_products');
-      console.log('API Response:', response.data); //log the response for debugging
+      console.log('API Response:', response.data); // Log the response for debugging
 
       // Check if the response is an array
       if (Array.isArray(response.data)) {
         setProducts(response.data);
       } else if (response.data && Array.isArray(response.data.products)) {
-        //fallback if the response has a 'products' key
+        // Fallback if the response has a 'products' key
         setProducts(response.data.products);
       } else {
         console.error('Unexpected API response structure:', response.data);
@@ -62,11 +68,11 @@ const Products = () => {
     }
   }, []);
 
-  //fetch products on component mount and set up interval for refreshing
+  // Fetch products on component mount and set up interval for refreshing
   useEffect(() => {
     fetchData();
-    const intervalId = setInterval(fetchData, 10000);
-    return () => clearInterval(intervalId); 
+    const intervalId = setInterval(fetchData, 10000); // Refresh every 10 seconds
+    return () => clearInterval(intervalId);
   }, [fetchData]);
 
   // Modal handlers
@@ -88,71 +94,110 @@ const Products = () => {
   // Handle CSV file selection
   const handleCsvUpload = (event) => {
     setCsvFile(event.target.files[0]);
+    setUploadStatus(null); // Reset status on new file selection
   };
 
   // Process and upload CSV file
-  const processCsvFile = () => {
+  const processCsvFile = async () => {
     if (!csvFile) {
-      console.error('No file selected');
+      setUploadStatus({ type: 'error', message: 'No file selected' });
       return;
     }
 
-    Papa.parse(csvFile, {
-      header: true,
-      skipEmptyLines: true,
-      complete: async (result) => {
-        const productsData = result.data;
-        try {
-          const response = await axios.post('/api/bulk-add-products', { products: productsData });
-          if (response.status === 200) {
-            fetchData();
-            console.log('Bulk upload successful');
-            setCsvFile(null); //reset file input
-          } else {
-            console.error('Bulk upload failed');
-          }
-        } catch (error) {
-          console.error('Error uploading CSV data:', error);
+    // Create FormData object to send the file
+    const formData = new FormData();
+    formData.append('file', csvFile);
+
+    try {
+      setIsUploading(true); // Start uploading
+      const response = await axios.post('/api/upload_products', formData, {
+        // Do NOT set 'Content-Type' header manually; let Axios handle it
+      });
+
+      if (response.status === 201) {
+        const { message, failed_rows } = response.data;
+        if (failed_rows?.length) {
+          setUploadStatus({
+            type: 'warning',
+            message: `${message}. However, some rows failed to upload.`,
+          });
+        } else {
+          setUploadStatus({ type: 'success', message });
         }
-      },
-      error: (error) => {
-        console.error('Error parsing CSV file:', error);
+        fetchData(); // Refresh data
+        setCsvFile(null); // Reset file input state
+        if (fileInputRef.current) {
+          fileInputRef.current.value = null; // Reset file input value
+        }
+      } else {
+        setUploadStatus({ type: 'error', message: response.data.error || 'Upload failed' });
       }
-    });
+    } catch (error) {
+      const errorMsg =
+        error.response?.data?.error || error.message || 'Unknown error occurred';
+      setUploadStatus({ type: 'error', message: errorMsg });
+      console.error('Error uploading CSV data:', errorMsg);
+    } finally {
+      setIsUploading(false); // End uploading
+    }
   };
 
   return (
-    <Box sx={{ padding: '20px', marginLeft: '250px', }}>
-      <Typography variant="h4" gutterBottom>Product Management</Typography>
+    <Box sx={{ padding: '20px', marginLeft: '250px' }}>
+      <Typography variant="h4" gutterBottom>
+        Product Management
+      </Typography>
 
       {/* Logout Button */}
-      <div>
-        <Button 
-          variant="contained" 
-          color="secondary" 
+      <Box sx={{ mb: 2 }}>
+        <Button
+          variant="contained"
+          color="secondary"
           onClick={handleLogout}
           sx={{ mb: 2 }}
         >
           Logout
         </Button>
-      </div>
+      </Box>
 
       {/* Add Product Button */}
-      <Button variant="contained" onClick={openAddModal} sx={{ mb: 3 }}>Add Product</Button>
+      <Box sx={{ mb: 3 }}>
+        <Button variant="contained" onClick={openAddModal}>
+          Add Product
+        </Button>
+      </Box>
 
       {/* Bulk Upload Section */}
       <Box sx={{ mb: 3 }}>
-        <Typography variant="h6" gutterBottom>Bulk Upload Products</Typography>
+        <Typography variant="h6" gutterBottom>
+          Bulk Upload Products
+        </Typography>
+        <Typography variant="body2" color="textSecondary" sx={{ mb: 1 }}>
+          Please upload a CSV file with the following headers: Name, Price, Category_ID, SubCategory_ID.
+        </Typography>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
-          <TextField
+          <input
             type="file"
-            inputProps={{ accept: ".csv" }}
+            accept=".csv"
             onChange={handleCsvUpload}
+            ref={fileInputRef} // Assign ref to the input
+            style={{ display: 'block' }} // Optional styling
           />
-          <Button variant="contained" onClick={processCsvFile} disabled={!csvFile}>
-            Upload CSV
+          <Button
+            variant="contained"
+            onClick={processCsvFile}
+            disabled={!csvFile || isUploading}
+          >
+            {isUploading ? 'Uploading...' : 'Upload CSV'}
           </Button>
         </Box>
+
+        {/* Display Upload Status */}
+        {uploadStatus && (
+          <Alert severity={uploadStatus.type} sx={{ mt: 2 }}>
+            {uploadStatus.message}
+          </Alert>
+        )}
       </Box>
 
       {/* Products Table */}
@@ -183,7 +228,12 @@ const Products = () => {
                   <TableCell>{product.Discount_Percentage || 0}%</TableCell>
                   <TableCell>
                     {product.ImageURL ? (
-                      <img src={product.ImageURL} alt={product.Name} width="50" height="50" />
+                      <img
+                        src={product.ImageURL}
+                        alt={product.Name}
+                        width="50"
+                        height="50"
+                      />
                     ) : (
                       'No Image'
                     )}
@@ -192,16 +242,16 @@ const Products = () => {
                   <TableCell>{product.Category_ID || 'N/A'}</TableCell>
                   <TableCell>{product.SubCategory_ID || 'N/A'}</TableCell>
                   <TableCell>
-                    <Button 
-                      onClick={() => openUpdateModal(product)} 
-                      variant="outlined" 
+                    <Button
+                      onClick={() => openUpdateModal(product)}
+                      variant="outlined"
                       sx={{ mr: 1 }}
                     >
                       Edit
                     </Button>
-                    <Button 
-                      onClick={() => openRemoveModal(product)} 
-                      variant="outlined" 
+                    <Button
+                      onClick={() => openRemoveModal(product)}
+                      variant="outlined"
                       color="error"
                     >
                       Remove
@@ -222,22 +272,60 @@ const Products = () => {
 
       {/* Add Product Modal */}
       <Modal open={isAddOpen} onClose={closeAddModal}>
-        <Box sx={{ maxWidth: 500, mx: 'auto', p: 4, bgcolor: 'background.paper', mt: 8 }}>
+        <Box
+          sx={{
+            maxWidth: 500,
+            mx: 'auto',
+            p: 4,
+            bgcolor: 'background.paper',
+            mt: 8,
+            borderRadius: 2,
+            boxShadow: 24,
+          }}
+        >
           <AddProduct onClose={closeAddModal} onAdd={fetchData} />
         </Box>
       </Modal>
 
       {/* Update Product Modal */}
       <Modal open={isUpdateOpen} onClose={closeUpdateModal}>
-        <Box sx={{ maxWidth: 500, mx: 'auto', p: 4, bgcolor: 'background.paper', mt: 8 }}>
-          <UpdateProduct product={selectedProduct} onClose={closeUpdateModal} onUpdate={fetchData} />
+        <Box
+          sx={{
+            maxWidth: 500,
+            mx: 'auto',
+            p: 4,
+            bgcolor: 'background.paper',
+            mt: 8,
+            borderRadius: 2,
+            boxShadow: 24,
+          }}
+        >
+          <UpdateProduct
+            product={selectedProduct}
+            onClose={closeUpdateModal}
+            onUpdate={fetchData}
+          />
         </Box>
       </Modal>
 
       {/* Remove Product Modal */}
       <Modal open={isRemoveOpen} onClose={closeRemoveModal}>
-        <Box sx={{ maxWidth: 500, mx: 'auto', p: 4, bgcolor: 'background.paper', mt: 8 }}>
-          <RemoveProduct product={selectedProduct} onClose={closeRemoveModal} onRemove={fetchData} />
+        <Box
+          sx={{
+            maxWidth: 500,
+            mx: 'auto',
+            p: 4,
+            bgcolor: 'background.paper',
+            mt: 8,
+            borderRadius: 2,
+            boxShadow: 24,
+          }}
+        >
+          <RemoveProduct
+            product={selectedProduct}
+            onClose={closeRemoveModal}
+            onRemove={fetchData}
+          />
         </Box>
       </Modal>
     </Box>
